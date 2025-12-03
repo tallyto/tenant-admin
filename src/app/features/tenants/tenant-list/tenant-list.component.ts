@@ -134,7 +134,17 @@ import { Tenant, TenantCadastro } from '../../../models/tenant.model';
                   <small *ngIf="tenant.displayName">{{ tenant.displayName }}</small>
                 </td>
                 <td>{{ tenant.domain }}</td>
-                <td>{{ tenant.email }}</td>
+                <td>
+                  <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <span>{{ isEmailVisible(tenant.id) ? tenant.email : maskEmail(tenant.email) }}</span>
+                    <button 
+                      class="btn-icon" 
+                      (click)="toggleEmailVisibility(tenant.id)"
+                      [title]="isEmailVisible(tenant.id) ? 'Ocultar email' : 'Mostrar email'">
+                      {{ isEmailVisible(tenant.id) ? '🙈' : '👁️' }}
+                    </button>
+                  </div>
+                </td>
                 <td>
                   <span class="badge" 
                     [ngClass]="{
@@ -231,6 +241,20 @@ import { Tenant, TenantCadastro } from '../../../models/tenant.model';
     .btn-sm {
       padding: 0.25rem 0.5rem;
       font-size: 0.75rem;
+    }
+
+    .btn-icon {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0.25rem;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+
+    .btn-icon:hover {
+      opacity: 1;
     }
 
     .badge-secondary {
@@ -342,6 +366,9 @@ export class TenantListComponent implements OnInit {
   showCreateForm = false;
   createForm: FormGroup;
   creating = false;
+  
+  // Controle de visibilidade de emails
+  visibleEmails = new Set<string>();
 
   constructor(
     private tenantService: TenantService,
@@ -432,6 +459,27 @@ export class TenantListComponent implements OnInit {
     // O ngSubmit do form vai chamar createTenant()
   }
 
+  toggleEmailVisibility(tenantId: string): void {
+    if (this.visibleEmails.has(tenantId)) {
+      this.visibleEmails.delete(tenantId);
+    } else {
+      this.visibleEmails.add(tenantId);
+    }
+  }
+
+  isEmailVisible(tenantId: string): boolean {
+    return this.visibleEmails.has(tenantId);
+  }
+
+  maskEmail(email: string): string {
+    const [username, domain] = email.split('@');
+    if (!username || !domain) return '***@***';
+    
+    const visibleChars = Math.min(3, Math.floor(username.length / 3));
+    const masked = username.substring(0, visibleChars) + '***';
+    return `${masked}@${domain}`;
+  }
+
   createTenant(): void {
     console.log('createTenant() called');
     console.log('Form valid:', this.createForm.valid);
@@ -495,6 +543,27 @@ export class TenantListComponent implements OnInit {
   cancelCreate(): void {
     this.createForm.reset();
     this.showCreateForm = false;
+  }
+
+  toggleEmailVisibility(tenantId: string): void {
+    if (this.visibleEmails.has(tenantId)) {
+      this.visibleEmails.delete(tenantId);
+    } else {
+      this.visibleEmails.add(tenantId);
+    }
+  }
+
+  isEmailVisible(tenantId: string): boolean {
+    return this.visibleEmails.has(tenantId);
+  }
+
+  maskEmail(email: string): string {
+    const [username, domain] = email.split('@');
+    if (!username || !domain) return '***@***';
+    
+    const visibleChars = Math.min(3, Math.floor(username.length / 3));
+    const masked = username.substring(0, visibleChars) + '***';
+    return `${masked}@${domain}`;
   }
 
   getFormValidationErrors(): Array<{control: string, error: string}> {
