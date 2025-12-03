@@ -545,26 +545,6 @@ export class TenantListComponent implements OnInit {
     this.showCreateForm = false;
   }
 
-  toggleEmailVisibility(tenantId: string): void {
-    if (this.visibleEmails.has(tenantId)) {
-      this.visibleEmails.delete(tenantId);
-    } else {
-      this.visibleEmails.add(tenantId);
-    }
-  }
-
-  isEmailVisible(tenantId: string): boolean {
-    return this.visibleEmails.has(tenantId);
-  }
-
-  maskEmail(email: string): string {
-    const [username, domain] = email.split('@');
-    if (!username || !domain) return '***@***';
-    
-    const visibleChars = Math.min(3, Math.floor(username.length / 3));
-    const masked = username.substring(0, visibleChars) + '***';
-    return `${masked}@${domain}`;
-  }
 
   getFormValidationErrors(): Array<{control: string, error: string}> {
     const errors: Array<{control: string, error: string}> = [];
