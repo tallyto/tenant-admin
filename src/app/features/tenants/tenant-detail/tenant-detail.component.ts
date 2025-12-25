@@ -106,15 +106,6 @@ interface Usuario {
                   </p-button>
                   
                   <p-button 
-                    label="Enviar Email de Boas-vindas"
-                    icon="pi pi-envelope"
-                    severity="info"
-                    [outlined]="true"
-                    (click)="enviarEmailBoasVindas()"
-                    styleClass="w-full">
-                  </p-button>
-                  
-                  <p-button 
                     label="Excluir Tenant"
                     icon="pi pi-trash"
                     severity="danger"
@@ -179,14 +170,7 @@ interface Usuario {
                         [pTooltip]="usuario.ativo ? 'Desativar' : 'Ativar'"
                         (click)="toggleUsuarioStatus(usuario)">
                       </p-button>
-                      <p-button 
-                        icon="pi pi-key"
-                        severity="info"
-                        [outlined]="true"
-                        size="small"
-                        pTooltip="Resetar Senha"
-                        (click)="enviarResetSenha(usuario)">
-                      </p-button>
+
                     </div>
                   </td>
                 </tr>
@@ -206,146 +190,23 @@ interface Usuario {
                 <p-card>
                   <ng-template pTemplate="header">
                     <div class="p-3">
-                      <i class="pi pi-envelope text-4xl text-primary"></i>
-                    </div>
-                  </ng-template>
-                  <h4>Enviar Email de Boas-vindas</h4>
-                  <p class="text-color-secondary">Envia email de boas-vindas para o tenant</p>
-                  <ng-template pTemplate="footer">
-                    <p-button 
-                      label="Enviar"
-                      icon="pi pi-send"
-                      (click)="enviarEmailBoasVindas()"
-                      styleClass="w-full">
-                    </p-button>
-                  </ng-template>
-                </p-card>
-              </div>
-
-              <div class="col-12 md:col-6 lg:col-4">
-                <p-card>
-                  <ng-template pTemplate="header">
-                    <div class="p-3">
-                      <i class="pi pi-user-plus text-4xl text-primary"></i>
-                    </div>
-                  </ng-template>
-                  <h4>Lembrete Criar Usuário</h4>
-                  <p class="text-color-secondary">Envia lembrete para criar o primeiro usuário</p>
-                  <ng-template pTemplate="footer">
-                    <p-button 
-                      label="Enviar"
-                      icon="pi pi-send"
-                      (click)="enviarLembreteUsuario()"
-                      styleClass="w-full">
-                    </p-button>
-                  </ng-template>
-                </p-card>
-              </div>
-
-              <div class="col-12 md:col-6 lg:col-4">
-                <p-card>
-                  <ng-template pTemplate="header">
-                    <div class="p-3">
                       <i class="pi pi-refresh text-4xl text-orange-500"></i>
                     </div>
                   </ng-template>
-                  <h4>Reenviar Token</h4>
-                  <p class="text-color-secondary">Gera novo token caso o anterior tenha expirado</p>
+                  <h4>Reenviar Email de Ativação</h4>
+                  <p class="text-color-secondary">Reenvia o email de ativação da conta com novo token</p>
                   <ng-template pTemplate="footer">
                     <p-button 
-                      label="Reenviar"
-                      icon="pi pi-refresh"
-                      severity="warn"
+                      label="Reenviar Ativação"
+                      icon="pi pi-envelope"
+                      severity="info"
                       (click)="reenviarToken()"
                       styleClass="w-full">
                     </p-button>
                   </ng-template>
                 </p-card>
               </div>
-
-              <div class="col-12 md:col-6 lg:col-4">
-                <p-card>
-                  <ng-template pTemplate="header">
-                    <div class="p-3">
-                      <i class="pi pi-key text-4xl text-primary"></i>
-                    </div>
-                  </ng-template>
-                  <h4>Resetar Todas as Senhas</h4>
-                  <p class="text-color-secondary">Envia email de reset para todos os usuários ativos</p>
-                  <ng-template pTemplate="footer">
-                    <p-button 
-                      label="Resetar"
-                      icon="pi pi-refresh"
-                    severity="warn"
-                      (click)="confirmarResetTodasSenhas()"
-                      styleClass="w-full">
-                    </p-button>
-                  </ng-template>
-                </p-card>
-              </div>
-
-              <div class="col-12 md:col-6 lg:col-4">
-                <p-card>
-                  <ng-template pTemplate="header">
-                    <div class="p-3">
-                      <i class="pi pi-download text-4xl text-primary"></i>
-                    </div>
-                  </ng-template>
-                  <h4>Exportar Dados</h4>
-                  <p class="text-color-secondary">Exporta todos os dados do tenant em formato JSON</p>
-                  <ng-template pTemplate="footer">
-                    <p-button 
-                      label="Exportar"
-                      icon="pi pi-download"
-                      severity="info"
-                      [outlined]="true"
-                      (click)="exportarDados()"
-                      styleClass="w-full">
-                    </p-button>
-                  </ng-template>
-                </p-card>
-              </div>
-
-              <div class="col-12 md:col-6 lg:col-4">
-                <p-card>
-                  <ng-template pTemplate="header">
-                    <div class="p-3">
-                      <i class="pi pi-ban text-4xl text-danger"></i>
-                    </div>
-                  </ng-template>
-                  <h4>Desativar Todos Usuários</h4>
-                  <p class="text-color-secondary">Desativa todos os usuários do tenant</p>
-                  <ng-template pTemplate="footer">
-                    <p-button 
-                      label="Desativar"
-                      icon="pi pi-ban"
-                      severity="danger"
-                      (click)="confirmarDesativarTodosUsuarios()"
-                      styleClass="w-full">
-                    </p-button>
-                  </ng-template>
-                </p-card>
-              </div>
-
-              <div class="col-12 md:col-6 lg:col-4">
-                <p-card>
-                  <ng-template pTemplate="header">
-                    <div class="p-3">
-                      <i class="pi pi-check-circle text-4xl text-success"></i>
-                    </div>
-                  </ng-template>
-                  <h4>Ativar Todos Usuários</h4>
-                  <p class="text-color-secondary">Ativa todos os usuários do tenant</p>
-                  <ng-template pTemplate="footer">
-                    <p-button 
-                      label="Ativar"
-                      icon="pi pi-check-circle"
-                      severity="success"
-                      (click)="confirmarAtivarTodosUsuarios()"
-                      styleClass="w-full">
-                    </p-button>
-                  </ng-template>
-                </p-card>
+            </div>
               </div>
             </div>
           </p-tabPanel>
@@ -610,190 +471,25 @@ export class TenantDetailComponent implements OnInit {
     });
   }
 
-  enviarResetSenha(usuario: Usuario): void {
-    this.confirmationService.confirm({
-      message: `Enviar email de redefinição de senha para ${usuario.nome}?`,
-      header: 'Confirmação',
-      icon: 'pi pi-question-circle',
-      accept: () => {
-        this.tenantService.enviarResetSenha(this.tenant.id, usuario.id).subscribe({
-          next: () => {
-            this.toastService.success('Email de redefinição enviado com sucesso');
-            this.dataUltimoEmail = new Date();
-          },
-          error: (error) => {
-            console.error('Erro ao enviar email:', error);
-            this.toastService.error('Erro ao enviar email de redefinição');
-          }
-        });
-      }
-    });
-  }
-
-  enviarEmailBoasVindas(): void {
-    if (!this.tenant) return;
-
-    this.confirmationService.confirm({
-      message: 'Enviar email de boas-vindas para o tenant?',
-      header: 'Confirmação',
-      icon: 'pi pi-question-circle',
-      accept: () => {
-        this.tenantService.enviarEmailBoasVindas(this.tenant.id).subscribe({
-          next: () => {
-            this.toastService.success('Email de boas-vindas enviado com sucesso');
-            this.dataUltimoEmail = new Date();
-          },
-          error: (error) => {
-            console.error('Erro ao enviar email:', error);
-            this.toastService.error('Erro ao enviar email de boas-vindas');
-          }
-        });
-      }
-    });
-  }
-
-  enviarLembreteUsuario(): void {
-    if (!this.tenant) return;
-
-    this.confirmationService.confirm({
-      message: 'Enviar lembrete para criar o primeiro usuário?',
-      header: 'Confirmação',
-      icon: 'pi pi-question-circle',
-      accept: () => {
-        this.tenantService.enviarLembreteCriarUsuario(this.tenant.id).subscribe({
-          next: () => {
-            this.toastService.success('Lembrete enviado com sucesso');
-            this.dataUltimoEmail = new Date();
-          },
-          error: (error) => {
-            console.error('Erro ao enviar lembrete:', error);
-            this.toastService.error('Erro ao enviar lembrete');
-          }
-        });
-      }
-    });
-  }
-
   reenviarToken(): void {
     if (!this.tenant) return;
 
     this.confirmationService.confirm({
-      message: 'Gerar novo token e reenviar email para criação de usuário?',
+      message: 'Reenviar email de ativação da conta com novo token?',
       header: 'Confirmação',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
         this.tenantService.reenviarTokenCriarUsuario(this.tenant.id).subscribe({
           next: (response) => {
-            this.toastService.success(response.message || 'Token reenviado com sucesso');
+            this.toastService.success(response.message || 'Email de ativação reenviado com sucesso');
             this.dataUltimoEmail = new Date();
           },
           error: (error) => {
-            console.error('Erro ao reenviar token:', error);
-            const errorMessage = error.error?.message || 'Erro ao reenviar token';
+            console.error('Erro ao reenviar email de ativação:', error);
+            const errorMessage = error.error?.message || 'Erro ao reenviar email de ativação';
             this.toastService.error(errorMessage);
           }
         });
-      }
-    });
-  }
-
-  confirmarResetTodasSenhas(): void {
-    this.confirmationService.confirm({
-      message: 'Tem certeza que deseja enviar email de reset de senha para TODOS os usuários ativos?',
-      header: 'Atenção',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.resetarTodasSenhas();
-      }
-    });
-  }
-
-  resetarTodasSenhas(): void {
-    if (!this.tenant) return;
-
-    this.tenantService.resetarTodasSenhas(this.tenant.id).subscribe({
-      next: () => {
-        this.toastService.success('Emails de reset enviados para todos os usuários ativos');
-        this.dataUltimoEmail = new Date();
-      },
-      error: (error) => {
-        console.error('Erro ao resetar senhas:', error);
-        this.toastService.error('Erro ao enviar emails de reset');
-      }
-    });
-  }
-
-  confirmarDesativarTodosUsuarios(): void {
-    this.confirmationService.confirm({
-      message: 'Tem certeza que deseja DESATIVAR todos os usuários deste tenant?',
-      header: 'Atenção',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.desativarTodosUsuarios();
-      }
-    });
-  }
-
-  desativarTodosUsuarios(): void {
-    if (!this.tenant) return;
-
-    this.tenantService.desativarTodosUsuarios(this.tenant.id).subscribe({
-      next: () => {
-        this.usuarios.forEach(u => u.ativo = false);
-        this.calcularEstatisticas();
-        this.toastService.success('Todos os usuários foram desativados');
-      },
-      error: (error) => {
-        console.error('Erro ao desativar usuários:', error);
-        this.toastService.error('Erro ao desativar usuários');
-      }
-    });
-  }
-
-  confirmarAtivarTodosUsuarios(): void {
-    this.confirmationService.confirm({
-      message: 'Tem certeza que deseja ATIVAR todos os usuários deste tenant?',
-      header: 'Confirmação',
-      icon: 'pi pi-question-circle',
-      accept: () => {
-        this.ativarTodosUsuarios();
-      }
-    });
-  }
-
-  ativarTodosUsuarios(): void {
-    if (!this.tenant) return;
-
-    this.tenantService.ativarTodosUsuarios(this.tenant.id).subscribe({
-      next: () => {
-        this.usuarios.forEach(u => u.ativo = true);
-        this.calcularEstatisticas();
-        this.toastService.success('Todos os usuários foram ativados');
-      },
-      error: (error) => {
-        console.error('Erro ao ativar usuários:', error);
-        this.toastService.error('Erro ao ativar usuários');
-      }
-    });
-  }
-
-  exportarDados(): void {
-    if (!this.tenant) return;
-
-    this.tenantService.exportarDados(this.tenant.id).subscribe({
-      next: (dados) => {
-        const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `tenant-${this.tenant.id}-dados.json`;
-        a.click();
-        window.URL.revokeObjectURL(url);
-        this.toastService.success('Dados exportados com sucesso');
-      },
-      error: (error) => {
-        console.error('Erro ao exportar dados:', error);
-        this.toastService.error('Erro ao exportar dados');
       }
     });
   }

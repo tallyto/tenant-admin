@@ -53,10 +53,7 @@ export class TenantService {
     return this.http.get<any[]>(`${this.apiUrl}/${tenantId}/usuarios`);
   }
   
-  enviarLembreteCriarUsuario(tenantId: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.apiUrl}/${tenantId}/enviar-lembrete-usuario`, {});
-  }
-
+  // Método para reenviar email de ativação da conta
   reenviarTokenCriarUsuario(tenantId: string): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.apiUrl}/${tenantId}/reenviar-token-usuario`, {});
   }
@@ -69,26 +66,7 @@ export class TenantService {
     return this.http.put(`${this.apiUrl}/${tenantId}/usuarios/${usuarioId}/toggle-status`, {});
   }
 
-  enviarResetSenha(tenantId: number, usuarioId: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${tenantId}/usuarios/${usuarioId}/reset-senha`, {});
-  }
-
-  enviarEmailBoasVindas(tenantId: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${tenantId}/email-boas-vindas`, {});
-  }
-
-  resetarTodasSenhas(tenantId: number): Observable<any> {
-    return this.http.post(`${this.apiUrl}/${tenantId}/usuarios/reset-todas-senhas`, {});
-  }
-
-  desativarTodosUsuarios(tenantId: number): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${tenantId}/usuarios/desativar-todos`, {});
-  }
-
-  ativarTodosUsuarios(tenantId: number): Observable<any> {
-    return this.http.put(`${this.apiUrl}/${tenantId}/usuarios/ativar-todos`, {});
-  }
-
+  // Método para exportar dados do tenant se necessário
   exportarDados(tenantId: number): Observable<any> {
     return this.http.get(`${this.apiUrl}/${tenantId}/exportar`, {});
   }
