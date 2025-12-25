@@ -262,7 +262,7 @@ import { TooltipModule } from 'primeng/tooltip';
                   <p-button 
                     icon="pi pi-envelope" 
                     (onClick)="enviarLembreteUsuario(tenant)"
-                    severity="warning"
+                    severity="warn"
                     [text]="true"
                     size="small"
                     [disabled]="!tenant.active"

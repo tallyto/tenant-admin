@@ -100,7 +100,7 @@ interface Usuario {
                   <p-button 
                     [label]="tenant?.ativo ? 'Desativar Tenant' : 'Ativar Tenant'"
                     [icon]="tenant?.ativo ? 'pi pi-ban' : 'pi pi-check-circle'"
-                    [severity]="tenant?.ativo ? 'warning' : 'success'"
+                    [severity]="tenant?.ativo ? 'warn' : 'success'"
                     (onClick)="toggleTenantStatus()"
                     styleClass="w-full">
                   </p-button>
@@ -173,7 +173,7 @@ interface Usuario {
                     <div class="flex gap-1">
                       <p-button 
                         [icon]="usuario.ativo ? 'pi pi-ban' : 'pi pi-check'"
-                        [severity]="usuario.ativo ? 'warning' : 'success'"
+                        [severity]="usuario.ativo ? 'warn' : 'success'"
                         [outlined]="true"
                         size="small"
                         [pTooltip]="usuario.ativo ? 'Desativar' : 'Ativar'"
@@ -255,7 +255,7 @@ interface Usuario {
                     <p-button 
                       label="Resetar"
                       icon="pi pi-refresh"
-                      severity="warning"
+                    severity="warn"
                       (onClick)="confirmarResetTodasSenhas()"
                       styleClass="w-full">
                     </p-button>
@@ -471,12 +471,12 @@ export class TenantDetailComponent implements OnInit {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.carregarTenant(+id);
+      this.carregarTenant(id);
       this.carregarUsuarios();
     }
   }
 
-  carregarTenant(id: number): void {
+  carregarTenant(id: string): void {
     this.loading = true;
     this.tenantService.getById(id).subscribe({
       next: (tenant) => {
@@ -485,7 +485,7 @@ export class TenantDetailComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erro ao carregar tenant:', error);
-        this.toastService.showError('Erro ao carregar tenant');
+        this.toastService.error('Erro ao carregar tenant');
         this.loading = false;
       }
     });
@@ -496,7 +496,7 @@ export class TenantDetailComponent implements OnInit {
     if (!id) return;
 
     this.loading = true;
-    this.tenantService.getUsuarios(+id).subscribe({
+    this.tenantService.getUsuarios(id).subscribe({
       next: (usuarios) => {
         this.usuarios = usuarios;
         this.calcularEstatisticas();
@@ -504,7 +504,7 @@ export class TenantDetailComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erro ao carregar usuários:', error);
-        this.toastService.showError('Erro ao carregar usuários');
+        this.toastService.error('Erro ao carregar usuários');
         this.loading = false;
       }
     });
@@ -535,11 +535,11 @@ export class TenantDetailComponent implements OnInit {
         this.tenantService.toggleStatus(this.tenant.id).subscribe({
           next: () => {
             this.tenant.ativo = !this.tenant.ativo;
-            this.toastService.showSuccess(`Tenant ${acao === 'desativar' ? 'desativado' : 'ativado'} com sucesso`);
+            this.toastService.success(`Tenant ${acao === 'desativar' ? 'desativado' : 'ativado'} com sucesso`);
           },
           error: (error) => {
             console.error('Erro ao alterar status:', error);
-            this.toastService.showError('Erro ao alterar status do tenant');
+            this.toastService.error('Erro ao alterar status do tenant');
           }
         });
       }
@@ -557,11 +557,11 @@ export class TenantDetailComponent implements OnInit {
           next: () => {
             usuario.ativo = !usuario.ativo;
             this.calcularEstatisticas();
-            this.toastService.showSuccess(`Usuário ${acao === 'desativar' ? 'desativado' : 'ativado'} com sucesso`);
+            this.toastService.success(`Usuário ${acao === 'desativar' ? 'desativado' : 'ativado'} com sucesso`);
           },
           error: (error) => {
             console.error('Erro ao alterar status do usuário:', error);
-            this.toastService.showError('Erro ao alterar status do usuário');
+            this.toastService.error('Erro ao alterar status do usuário');
           }
         });
       }
@@ -576,12 +576,12 @@ export class TenantDetailComponent implements OnInit {
       accept: () => {
         this.tenantService.enviarResetSenha(this.tenant.id, usuario.id).subscribe({
           next: () => {
-            this.toastService.showSuccess('Email de redefinição enviado com sucesso');
+            this.toastService.success('Email de redefinição enviado com sucesso');
             this.dataUltimoEmail = new Date();
           },
           error: (error) => {
             console.error('Erro ao enviar email:', error);
-            this.toastService.showError('Erro ao enviar email de redefinição');
+            this.toastService.error('Erro ao enviar email de redefinição');
           }
         });
       }
@@ -598,12 +598,12 @@ export class TenantDetailComponent implements OnInit {
       accept: () => {
         this.tenantService.enviarEmailBoasVindas(this.tenant.id).subscribe({
           next: () => {
-            this.toastService.showSuccess('Email de boas-vindas enviado com sucesso');
+            this.toastService.success('Email de boas-vindas enviado com sucesso');
             this.dataUltimoEmail = new Date();
           },
           error: (error) => {
             console.error('Erro ao enviar email:', error);
-            this.toastService.showError('Erro ao enviar email de boas-vindas');
+            this.toastService.error('Erro ao enviar email de boas-vindas');
           }
         });
       }
@@ -620,12 +620,12 @@ export class TenantDetailComponent implements OnInit {
       accept: () => {
         this.tenantService.enviarLembreteCriarUsuario(this.tenant.id).subscribe({
           next: () => {
-            this.toastService.showSuccess('Lembrete enviado com sucesso');
+            this.toastService.success('Lembrete enviado com sucesso');
             this.dataUltimoEmail = new Date();
           },
           error: (error) => {
             console.error('Erro ao enviar lembrete:', error);
-            this.toastService.showError('Erro ao enviar lembrete');
+            this.toastService.error('Erro ao enviar lembrete');
           }
         });
       }
@@ -648,12 +648,12 @@ export class TenantDetailComponent implements OnInit {
 
     this.tenantService.resetarTodasSenhas(this.tenant.id).subscribe({
       next: () => {
-        this.toastService.showSuccess('Emails de reset enviados para todos os usuários ativos');
+        this.toastService.success('Emails de reset enviados para todos os usuários ativos');
         this.dataUltimoEmail = new Date();
       },
       error: (error) => {
         console.error('Erro ao resetar senhas:', error);
-        this.toastService.showError('Erro ao enviar emails de reset');
+        this.toastService.error('Erro ao enviar emails de reset');
       }
     });
   }
@@ -676,11 +676,11 @@ export class TenantDetailComponent implements OnInit {
       next: () => {
         this.usuarios.forEach(u => u.ativo = false);
         this.calcularEstatisticas();
-        this.toastService.showSuccess('Todos os usuários foram desativados');
+        this.toastService.success('Todos os usuários foram desativados');
       },
       error: (error) => {
         console.error('Erro ao desativar usuários:', error);
-        this.toastService.showError('Erro ao desativar usuários');
+        this.toastService.error('Erro ao desativar usuários');
       }
     });
   }
@@ -703,11 +703,11 @@ export class TenantDetailComponent implements OnInit {
       next: () => {
         this.usuarios.forEach(u => u.ativo = true);
         this.calcularEstatisticas();
-        this.toastService.showSuccess('Todos os usuários foram ativados');
+        this.toastService.success('Todos os usuários foram ativados');
       },
       error: (error) => {
         console.error('Erro ao ativar usuários:', error);
-        this.toastService.showError('Erro ao ativar usuários');
+        this.toastService.error('Erro ao ativar usuários');
       }
     });
   }
@@ -724,11 +724,11 @@ export class TenantDetailComponent implements OnInit {
         a.download = `tenant-${this.tenant.id}-dados.json`;
         a.click();
         window.URL.revokeObjectURL(url);
-        this.toastService.showSuccess('Dados exportados com sucesso');
+        this.toastService.success('Dados exportados com sucesso');
       },
       error: (error) => {
         console.error('Erro ao exportar dados:', error);
-        this.toastService.showError('Erro ao exportar dados');
+        this.toastService.error('Erro ao exportar dados');
       }
     });
   }
@@ -750,12 +750,12 @@ export class TenantDetailComponent implements OnInit {
 
     this.tenantService.delete(this.tenant.id).subscribe({
       next: () => {
-        this.toastService.showSuccess('Tenant excluído com sucesso');
+        this.toastService.success('Tenant excluído com sucesso');
         this.router.navigate(['/tenants']);
       },
       error: (error) => {
         console.error('Erro ao excluir tenant:', error);
-        this.toastService.showError('Erro ao excluir tenant');
+        this.toastService.error('Erro ao excluir tenant');
       }
     });
   }
