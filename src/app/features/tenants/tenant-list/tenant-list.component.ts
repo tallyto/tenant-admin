@@ -261,12 +261,12 @@ import { TooltipModule } from 'primeng/tooltip';
                   </p-button>
                   <p-button 
                     icon="pi pi-envelope" 
-                    (click)="enviarLembreteUsuario(tenant)"
-                    severity="warn"
+                    (click)="reenviarTokenUsuario(tenant)"
+                    severity="info"
                     [text]="true"
                     size="small"
                     [disabled]="!tenant.active"
-                    pTooltip="Enviar lembrete para criar usuário">
+                    pTooltip="Reenviar email de ativação">
                   </p-button>
                   <p-button 
                     [icon]="tenant.active ? 'pi pi-lock' : 'pi pi-check'"
@@ -675,18 +675,18 @@ export class TenantListComponent implements OnInit {
     });
   }
   
-  enviarLembreteUsuario(tenant: Tenant): void {
-    if (!confirm(`Enviar email para "${tenant.name}" lembrando de criar o primeiro usuário?`)) {
+  reenviarTokenUsuario(tenant: Tenant): void {
+    if (!confirm(`Reenviar email de ativação para "${tenant.name}"?`)) {
       return;
     }
 
-    this.tenantService.enviarLembreteCriarUsuario(tenant.id).subscribe({
-      next: (response) => {
-        this.toastService.success(response.message || 'Email enviado com sucesso!');
+    this.tenantService.reenviarTokenCriarUsuario(tenant.id).subscribe({
+      next: (response: { message: string }) => {
+        this.toastService.success(response.message || 'Email de ativação reenviado com sucesso!');
       },
-      error: (error) => {
-        console.error('Error sending reminder:', error);
-        const errorMessage = error.error?.message || error.error?.error || 'Erro ao enviar email de lembrete';
+      error: (error: any) => {
+        console.error('Error sending activation email:', error);
+        const errorMessage = error.error?.message || error.error?.error || 'Erro ao reenviar email de ativação';
         this.toastService.error(errorMessage);
       }
     });

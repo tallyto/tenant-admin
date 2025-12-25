@@ -207,8 +207,6 @@ interface Usuario {
                 </p-card>
               </div>
             </div>
-              </div>
-            </div>
           </p-tabPanel>
 
           <!-- Tab: Estatísticas -->
