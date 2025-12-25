@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet } from '@angular/router';
 import { AuthService } from './core/services/auth.service';
@@ -6,6 +6,8 @@ import { ToastComponent } from './shared/components/toast/toast.component';
 import { MenubarModule } from 'primeng/menubar';
 import { ButtonModule } from 'primeng/button';
 import { MenuItem } from 'primeng/api';
+import { TooltipModule } from 'primeng/tooltip';
+import { ThemeService } from './core/services/theme.service';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +17,8 @@ import { MenuItem } from 'primeng/api';
     RouterOutlet, 
     ToastComponent,
     MenubarModule,
-    ButtonModule
+    ButtonModule,
+    TooltipModule
   ],
   template: `
     <div class="app-container">
@@ -51,8 +54,13 @@ import { MenuItem } from 'primeng/api';
 
     .navbar-brand h1 {
       font-size: 1.5rem;
-      color: var(--primary-color);
       margin: 0;
+    }
+
+    .header-end {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
     }
 
     .main-content {
@@ -60,13 +68,15 @@ import { MenuItem } from 'primeng/api';
     }
   `]
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   isAuthenticated = false;
   menuItems: MenuItem[] = [];
+  currentThemeName = 'Aura';
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private themeService: ThemeService
   ) {
     this.authService.currentUser$.subscribe(user => {
       this.isAuthenticated = !!user;
@@ -112,8 +122,32 @@ export class AppComponent {
             }
           }
         ]
+      },
+      {
+        label: this.currentThemeName,
+        icon: 'pi pi-palette',
+        command: () => {
+          this.toggleTheme();
+        }
       }
     ];
+  }
+
+  ngOnInit(): void {
+    // Carrega o tema inicial
+    this.currentThemeName = this.themeService.getCurrentThemeName();
+    this.themeService.loadSavedTheme();
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
+    this.currentThemeName = this.themeService.getCurrentThemeName();
+    
+    // Atualiza o label do menu item
+    const themeMenuItem = this.menuItems.find(item => item.icon === 'pi pi-palette');
+    if (themeMenuItem) {
+      themeMenuItem.label = this.currentThemeName;
+    }
   }
 
   logout(): void {
