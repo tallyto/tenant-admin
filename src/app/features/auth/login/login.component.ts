@@ -3,53 +3,90 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { PasswordModule } from 'primeng/password';
+import { MessageModule } from 'primeng/message';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [
+    CommonModule, 
+    ReactiveFormsModule,
+    CardModule,
+    ButtonModule,
+    InputTextModule,
+    PasswordModule,
+    MessageModule
+  ],
   template: `
     <div class="login-container">
-      <div class="login-card card">
-        <h2>🔐 Tenant Admin</h2>
-        <p class="subtitle">Faça login para gerenciar os tenants</p>
+      <p-card styleClass="login-card">
+        <ng-template pTemplate="header">
+          <div class="card-header">
+            <i class="pi pi-shield" style="font-size: 3rem; color: var(--primary-color);"></i>
+            <h2>Tenant Admin</h2>
+            <p class="subtitle">Faça login para gerenciar os tenants</p>
+          </div>
+        </ng-template>
         
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-          <div class="form-group">
+          <div class="p-field">
             <label for="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              formControlName="email"
-              placeholder="seu@email.com"
-            />
-            <div class="error" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+            <span class="p-input-icon-left w-full">
+              <i class="pi pi-envelope"></i>
+              <input
+                pInputText
+                type="email"
+                id="email"
+                formControlName="email"
+                placeholder="seu@email.com"
+                class="w-full"
+              />
+            </span>
+            <small class="p-error" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
               Email é obrigatório
-            </div>
+            </small>
           </div>
 
-          <div class="form-group">
+          <div class="p-field">
             <label for="senha">Senha</label>
-            <input
-              type="password"
-              id="senha"
-              formControlName="senha"
-              placeholder="Digite sua senha"
-            />
-            <div class="error" *ngIf="loginForm.get('senha')?.invalid && loginForm.get('senha')?.touched">
+            <span class="p-input-icon-left w-full">
+              <i class="pi pi-lock"></i>
+              <p-password
+                id="senha"
+                formControlName="senha"
+                placeholder="Digite sua senha"
+                [toggleMask]="true"
+                [feedback]="false"
+                styleClass="w-full"
+                inputStyleClass="w-full">
+              </p-password>
+            </span>
+            <small class="p-error" *ngIf="loginForm.get('senha')?.invalid && loginForm.get('senha')?.touched">
               Senha é obrigatória
-            </div>
+            </small>
           </div>
 
-          <div class="error" *ngIf="errorMessage">
-            {{ errorMessage }}
-          </div>
+          <p-message 
+            *ngIf="errorMessage" 
+            severity="error" 
+            [text]="errorMessage"
+            styleClass="w-full">
+          </p-message>
 
-          <button type="submit" class="btn btn-primary btn-block" [disabled]="loading || loginForm.invalid">
-            {{ loading ? 'Entrando...' : 'Entrar' }}
-          </button>
+          <p-button 
+            type="submit" 
+            label="Entrar"
+            icon="pi pi-sign-in"
+            styleClass="w-full"
+            [disabled]="loading || loginForm.invalid"
+            [loading]="loading">
+          </p-button>
         </form>
-      </div>
+      </p-card>
     </div>
   `,
   styles: [`
@@ -58,36 +95,55 @@ import { AuthService } from '../../../core/services/auth.service';
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 1rem;
     }
 
-    .login-card {
+    :host ::ng-deep .login-card {
       width: 100%;
       max-width: 400px;
-      padding: 2rem;
+    }
+
+    .card-header {
+      text-align: center;
+      padding: 2rem 1rem 1rem;
     }
 
     h2 {
-      text-align: center;
-      margin-bottom: 0.5rem;
-      color: var(--primary-color);
+      margin: 1rem 0 0.5rem 0;
     }
 
     .subtitle {
-      text-align: center;
-      color: var(--text-secondary);
-      margin-bottom: 2rem;
+      margin: 0;
     }
 
-    .btn-block {
+    .p-field {
+      margin-bottom: 1.5rem;
+    }
+
+    .p-field label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .w-full {
       width: 100%;
+    }
+
+    :host ::ng-deep .p-password {
+      width: 100%;
+    }
+
+    :host ::ng-deep .p-password input {
+      width: 100%;
+    }
+
+    :host ::ng-deep .p-button {
       margin-top: 1rem;
     }
 
-    .error {
-      color: var(--danger-color);
-      font-size: 0.875rem;
-      margin-top: 0.25rem;
+    :host ::ng-deep .p-message {
+      margin-bottom: 1rem;
     }
   `]
 })

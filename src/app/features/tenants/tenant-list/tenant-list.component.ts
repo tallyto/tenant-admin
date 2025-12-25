@@ -1,214 +1,293 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, ActivatedRoute } from '@angular/router';
+import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
 import { TenantService } from '../../../core/services/tenant.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { Tenant, TenantCadastro } from '../../../models/tenant.model';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
+import { DropdownModule } from 'primeng/dropdown';
+import { TagModule } from 'primeng/tag';
+import { DialogModule } from 'primeng/dialog';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-tenant-list',
   standalone: true,
-  imports: [CommonModule, RouterLink, ReactiveFormsModule, FormsModule],
+  imports: [
+    CommonModule, 
+    RouterLink, 
+    ReactiveFormsModule, 
+    FormsModule,
+    TableModule,
+    ButtonModule,
+    CardModule,
+    InputTextModule,
+    DropdownModule,
+    TagModule,
+    DialogModule,
+    ProgressSpinnerModule,
+    TooltipModule
+  ],
   template: `
     <div class="tenant-list">
       <div class="header">
         <h1>Gerenciar Tenants</h1>
         <div class="header-actions">
-          <button class="btn btn-success" (click)="showCreateForm = true">
-            ➕ Novo Tenant
-          </button>
-          <button class="btn btn-primary" (click)="loadTenants()">
-            🔄 Atualizar
-          </button>
+          <p-button 
+            label="Novo Tenant" 
+            icon="pi pi-plus" 
+            (onClick)="showCreateForm = true"
+            severity="success">
+          </p-button>
+          <p-button 
+            label="Atualizar" 
+            icon="pi pi-refresh" 
+            (onClick)="loadTenants()"
+            [outlined]="true">
+          </p-button>
         </div>
       </div>
 
-      <!-- Formulário de Cadastro -->
-      <div class="card" *ngIf="showCreateForm" style="margin-bottom: 2rem;">
-        <div class="form-header">
-          <h3>Cadastrar Novo Tenant</h3>
-          <button class="btn btn-secondary" (click)="cancelCreate()">✖ Cancelar</button>
-        </div>
+      <!-- Dialog de Cadastro -->
+      <p-dialog 
+        header="Cadastrar Novo Tenant" 
+        [(visible)]="showCreateForm" 
+        [modal]="true"
+        [style]="{width: '50vw'}"
+        [draggable]="false"
+        [resizable]="false">
         <form [formGroup]="createForm" (ngSubmit)="createTenant()">
-          <div class="form-row">
-            <div class="form-group">
+          <div class="form-grid">
+            <div class="p-field">
               <label for="name">Nome da Empresa *</label>
-              <input type="text" id="name" formControlName="name" placeholder="Minha Empresa Ltda">
-              <div class="error" *ngIf="createForm.get('name')?.invalid && createForm.get('name')?.touched">
+              <input 
+                pInputText 
+                id="name" 
+                formControlName="name" 
+                placeholder="Minha Empresa Ltda"
+                class="w-full">
+              <small class="p-error" *ngIf="createForm.get('name')?.invalid && createForm.get('name')?.touched">
                 <span *ngIf="createForm.get('name')?.errors?.['required']">Nome é obrigatório</span>
                 <span *ngIf="createForm.get('name')?.errors?.['minlength']">Nome deve ter no mínimo 3 caracteres</span>
-              </div>
+              </small>
             </div>
-            <div class="form-group">
+            <div class="p-field">
               <label for="domain">Domínio *</label>
-              <input type="text" id="domain" formControlName="domain" placeholder="minhaempresa.com.br">
+              <input 
+                pInputText 
+                id="domain" 
+                formControlName="domain" 
+                placeholder="minhaempresa.com.br"
+                class="w-full">
               <small class="form-hint">Ex: minhaempresa.com.br (será usado como identificador único)</small>
-              <div class="error" *ngIf="createForm.get('domain')?.invalid && createForm.get('domain')?.touched">
+              <small class="p-error" *ngIf="createForm.get('domain')?.invalid && createForm.get('domain')?.touched">
                 <span *ngIf="createForm.get('domain')?.errors?.['required']">Domínio é obrigatório</span>
                 <span *ngIf="createForm.get('domain')?.errors?.['pattern']">Formato inválido (ex: empresa.com.br)</span>
-              </div>
+              </small>
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group">
+          <div class="form-grid">
+            <div class="p-field">
               <label for="email">Email de Contato *</label>
-              <input type="email" id="email" formControlName="email" placeholder="contato@minhaempresa.com.br">
+              <input 
+                pInputText 
+                type="email" 
+                id="email" 
+                formControlName="email" 
+                placeholder="contato@minhaempresa.com.br"
+                class="w-full">
               <small class="form-hint">Um email de confirmação será enviado para este endereço</small>
-              <div class="error" *ngIf="createForm.get('email')?.invalid && createForm.get('email')?.touched">
+              <small class="p-error" *ngIf="createForm.get('email')?.invalid && createForm.get('email')?.touched">
                 <span *ngIf="createForm.get('email')?.errors?.['required']">Email é obrigatório</span>
                 <span *ngIf="createForm.get('email')?.errors?.['email']">Email inválido</span>
-              </div>
+              </small>
             </div>
-            <div class="form-group">
+            <div class="p-field">
               <label for="phoneNumber">Telefone</label>
-              <input type="tel" id="phoneNumber" formControlName="phoneNumber" placeholder="(11) 99999-9999">
+              <input 
+                pInputText 
+                type="tel" 
+                id="phoneNumber" 
+                formControlName="phoneNumber" 
+                placeholder="(11) 99999-9999"
+                class="w-full">
               <small class="form-hint">Opcional</small>
             </div>
           </div>
-          <div class="form-group">
+          <div class="p-field">
             <label for="address">Endereço</label>
-            <input type="text" id="address" formControlName="address" placeholder="Rua Example, 123 - São Paulo/SP">
+            <input 
+              pInputText 
+              id="address" 
+              formControlName="address" 
+              placeholder="Rua Example, 123 - São Paulo/SP"
+              class="w-full">
             <small class="form-hint">Opcional</small>
           </div>
-          <div class="form-actions">
-            <button type="submit" class="btn btn-primary" [disabled]="creating" (click)="onSubmitClick($event)">
-              {{ creating ? '⏳ Cadastrando...' : '✓ Cadastrar Tenant' }}
-            </button>
-            <button type="button" class="btn btn-secondary" (click)="cancelCreate()" [disabled]="creating">
-              Cancelar
-            </button>
-          </div>
         </form>
-      </div>
+        <ng-template pTemplate="footer">
+          <p-button 
+            label="Cancelar" 
+            icon="pi pi-times" 
+            (onClick)="cancelCreate()" 
+            [text]="true"
+            [disabled]="creating">
+          </p-button>
+          <p-button 
+            [label]="creating ? 'Cadastrando...' : 'Cadastrar Tenant'" 
+            icon="pi pi-check" 
+            (onClick)="createTenant()"
+            [disabled]="creating"
+            [loading]="creating">
+          </p-button>
+        </ng-template>
+      </p-dialog>
 
       <!-- Filtros -->
-      <div class="card filters" *ngIf="!showCreateForm">
-        <div class="filter-row">
-          <div class="form-group">
+      <p-card *ngIf="!loading" styleClass="filters-card">
+        <div class="filters-grid">
+          <span class="p-input-icon-left">
+            <i class="pi pi-search"></i>
             <input 
+              pInputText 
               type="text" 
               [(ngModel)]="searchTerm" 
               (ngModelChange)="applyFilters()"
-              placeholder="🔍 Buscar por nome, domínio ou email...">
-          </div>
-          <div class="form-group">
-            <select [(ngModel)]="statusFilter" (ngModelChange)="applyFilters()">
-              <option value="">Todos os status</option>
-              <option value="active">Apenas Ativos</option>
-              <option value="inactive">Apenas Inativos</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <select [(ngModel)]="planFilter" (ngModelChange)="applyFilters()">
-              <option value="">Todos os planos</option>
-              <option value="FREE">Free</option>
-              <option value="BASIC">Basic</option>
-              <option value="PREMIUM">Premium</option>
-              <option value="ENTERPRISE">Enterprise</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="spinner" *ngIf="loading"></div>
-
-      <div class="card" *ngIf="!loading">
-        <div class="table-responsive">
-          <table>
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>Domínio</th>
-                <th>Email</th>
-                <th>Plano</th>
-                <th>Status</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let tenant of paginatedTenants()">
-                <td>
-                  <strong>{{ tenant.name }}</strong>
-                  <br>
-                  <small *ngIf="tenant.displayName">{{ tenant.displayName }}</small>
-                </td>
-                <td>{{ tenant.domain }}</td>
-                <td>
-                  <div style="display: flex; align-items: center; gap: 0.5rem;">
-                    <span>{{ isEmailVisible(tenant.id) ? tenant.email : maskEmail(tenant.email) }}</span>
-                    <button 
-                      class="btn-icon" 
-                      (click)="toggleEmailVisibility(tenant.id)"
-                      [title]="isEmailVisible(tenant.id) ? 'Ocultar email' : 'Mostrar email'">
-                      {{ isEmailVisible(tenant.id) ? '🙈' : '👁️' }}
-                    </button>
-                  </div>
-                </td>
-                <td>
-                  <span class="badge" 
-                    [ngClass]="{
-                      'badge-success': tenant.subscriptionPlan === 'PREMIUM' || tenant.subscriptionPlan === 'ENTERPRISE',
-                      'badge-warning': tenant.subscriptionPlan === 'BASIC',
-                      'badge-secondary': tenant.subscriptionPlan === 'FREE'
-                    }">
-                    {{ tenant.subscriptionPlan }}
-                  </span>
-                </td>
-                <td>
-                  <span class="badge" 
-                    [ngClass]="{
-                      'badge-success': tenant.active,
-                      'badge-danger': !tenant.active
-                    }">
-                    {{ tenant.active ? 'Ativo' : 'Inativo' }}
-                  </span>
-                </td>
-                <td>
-                  <div class="action-buttons">
-                    <a [routerLink]="['/tenants', tenant.id]" class="btn btn-sm btn-secondary">
-                      👁️ Ver
-                    </a>
-                    <button 
-                      class="btn btn-sm"
-                      [ngClass]="tenant.active ? 'btn-warning' : 'btn-success'"
-                      (click)="toggleActive(tenant)">
-                      {{ tenant.active ? '🔒 Desativar' : '✅ Ativar' }}
-                    </button>
-                    <button class="btn btn-sm btn-danger" (click)="deleteTenant(tenant)">
-                      🗑️ Excluir
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr *ngIf="filteredTenants.length === 0">
-                <td colspan="6" style="text-align: center; padding: 2rem;">
-                  {{ searchTerm || statusFilter || planFilter ? 'Nenhum tenant encontrado com os filtros aplicados' : 'Nenhum tenant cadastrado' }}
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Paginação -->
-        <div class="pagination" *ngIf="filteredTenants.length > pageSize">
-          <button 
-            class="btn btn-secondary btn-sm" 
-            [disabled]="currentPage === 1"
-            (click)="changePage(currentPage - 1)">
-            ← Anterior
-          </button>
-          <span class="page-info">
-            Página {{ currentPage }} de {{ totalPages() }} | Total: {{ filteredTenants.length }} tenants
+              placeholder="Buscar por nome, domínio ou email..."
+              class="w-full">
           </span>
-          <button 
-            class="btn btn-secondary btn-sm" 
-            [disabled]="currentPage === totalPages()"
-            (click)="changePage(currentPage + 1)">
-            Próxima →
-          </button>
+          <p-dropdown 
+            [(ngModel)]="statusFilter" 
+            [options]="statusOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Todos os status"
+            (onChange)="applyFilters()"
+            [showClear]="true"
+            class="w-full">
+          </p-dropdown>
+          <p-dropdown 
+            [(ngModel)]="planFilter" 
+            [options]="planOptions"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Todos os planos"
+            (onChange)="applyFilters()"
+            [showClear]="true"
+            class="w-full">
+          </p-dropdown>
         </div>
+      </p-card>
+
+      <div class="loading-container" *ngIf="loading">
+        <p-progressSpinner></p-progressSpinner>
       </div>
+
+      <p-card *ngIf="!loading" styleClass="table-card">
+        <p-table 
+          [value]="filteredTenants" 
+          [paginator]="true" 
+          [rows]="10"
+          [showCurrentPageReport]="true"
+          currentPageReportTemplate="Exibindo {first} a {last} de {totalRecords} tenants"
+          [rowsPerPageOptions]="[10, 25, 50]"
+          [globalFilterFields]="['name', 'domain', 'email']"
+          responsiveLayout="scroll">
+          <ng-template pTemplate="header">
+            <tr>
+              <th pSortableColumn="name">
+                Nome <p-sortIcon field="name"></p-sortIcon>
+              </th>
+              <th pSortableColumn="domain">
+                Domínio <p-sortIcon field="domain"></p-sortIcon>
+              </th>
+              <th>Email</th>
+              <th pSortableColumn="subscriptionPlan">
+                Plano <p-sortIcon field="subscriptionPlan"></p-sortIcon>
+              </th>
+              <th>Status</th>
+              <th style="width: 250px;">Ações</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-tenant>
+            <tr>
+              <td>
+                <strong>{{ tenant.name }}</strong>
+                <div *ngIf="tenant.displayName" class="text-secondary">
+                  {{ tenant.displayName }}
+                </div>
+              </td>
+              <td>{{ tenant.domain }}</td>
+              <td>
+                <div class="email-cell">
+                  <span>{{ isEmailVisible(tenant.id) ? tenant.email : maskEmail(tenant.email) }}</span>
+                  <p-button 
+                    [icon]="isEmailVisible(tenant.id) ? 'pi pi-eye-slash' : 'pi pi-eye'"
+                    (onClick)="toggleEmailVisibility(tenant.id)"
+                    [rounded]="true"
+                    [text]="true"
+                    severity="secondary"
+                    size="small"
+                    [pTooltip]="isEmailVisible(tenant.id) ? 'Ocultar email' : 'Mostrar email'">
+                  </p-button>
+                </div>
+              </td>
+              <td>
+                <p-tag 
+                  [value]="tenant.subscriptionPlan"
+                  [severity]="getPlanSeverity(tenant.subscriptionPlan)">
+                </p-tag>
+              </td>
+              <td>
+                <p-tag 
+                  [value]="tenant.active ? 'Ativo' : 'Inativo'"
+                  [severity]="tenant.active ? 'success' : 'danger'">
+                </p-tag>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <p-button 
+                    icon="pi pi-eye" 
+                    [routerLink]="['/tenants', tenant.id]"
+                    severity="info"
+                    [text]="true"
+                    size="small"
+                    pTooltip="Ver detalhes">
+                  </p-button>
+                  <p-button 
+                    [icon]="tenant.active ? 'pi pi-lock' : 'pi pi-check'"
+                    (onClick)="toggleActive(tenant)"
+                    severity="secondary"
+                    [text]="true"
+                    size="small"
+                    [pTooltip]="tenant.active ? 'Desativar' : 'Ativar'">
+                  </p-button>
+                  <p-button 
+                    icon="pi pi-trash" 
+                    (onClick)="deleteTenant(tenant)"
+                    severity="danger"
+                    [text]="true"
+                    size="small"
+                    pTooltip="Excluir">
+                  </p-button>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="6" style="text-align: center; padding: 2rem;">
+                {{ searchTerm || statusFilter || planFilter ? 'Nenhum tenant encontrado com os filtros aplicados' : 'Nenhum tenant cadastrado' }}
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-card>
     </div>
   `,
   styles: [`
@@ -228,123 +307,79 @@ import { Tenant, TenantCadastro } from '../../../models/tenant.model';
       margin: 0;
     }
 
-    .table-responsive {
-      overflow-x: auto;
-    }
-
-    .action-buttons {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
-
-    .btn-sm {
-      padding: 0.25rem 0.5rem;
-      font-size: 0.75rem;
-    }
-
-    .btn-icon {
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 1rem;
-      padding: 0.25rem;
-      opacity: 0.6;
-      transition: opacity 0.2s;
-    }
-
-    .btn-icon:hover {
-      opacity: 1;
-    }
-
-    .badge-secondary {
-      background-color: #e2e8f0;
-      color: #475569;
-    }
-
-    td small {
-      color: var(--text-secondary);
-    }
-
-    .btn-success {
-      background-color: var(--success-color);
-      color: white;
-    }
-
-    .btn-success:hover {
-      background-color: #059669;
-    }
-
-    .btn-warning {
-      background-color: var(--warning-color);
-      color: white;
-    }
-
-    .btn-warning:hover {
-      background-color: #d97706;
-    }
-
     .header-actions {
       display: flex;
       gap: 1rem;
     }
 
-    .form-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+    :host ::ng-deep .filters-card {
       margin-bottom: 1.5rem;
     }
 
-    .form-header h3 {
-      margin: 0;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-
-    .form-hint {
-      display: block;
-      margin-top: 0.25rem;
-      font-size: 0.75rem;
-      color: var(--text-secondary);
-    }
-
-    .form-actions {
-      display: flex;
-      gap: 1rem;
-      margin-top: 1.5rem;
-    }
-
-    .form-actions button {
-      flex: 0 0 auto;
-    }
-
-    .filters {
-      margin-bottom: 1.5rem;
-    }
-
-    .filter-row {
+    .filters-grid {
       display: grid;
       grid-template-columns: 2fr 1fr 1fr;
       gap: 1rem;
     }
 
-    .pagination {
+    .loading-container {
       display: flex;
-      justify-content: space-between;
+      justify-content: center;
       align-items: center;
-      margin-top: 1.5rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid var(--border-color);
+      min-height: 400px;
     }
 
-    .page-info {
+    :host ::ng-deep .table-card .p-card-body {
+      padding: 0;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .email-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .text-secondary {
       color: var(--text-secondary);
       font-size: 0.875rem;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .p-field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .p-field label {
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .form-hint {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+    }
+
+    .w-full {
+      width: 100%;
+    }
+
+    :host ::ng-deep .p-dialog .p-dialog-content {
+      padding: 1.5rem;
     }
   `]
 })
@@ -353,14 +388,25 @@ export class TenantListComponent implements OnInit {
   filteredTenants: Tenant[] = [];
   loading = false;
   
-  // Paginação
-  currentPage = 1;
-  pageSize = 10;
-  
   // Filtros
   searchTerm = '';
   statusFilter = '';
   planFilter = '';
+  
+  // Opções de filtros
+  statusOptions = [
+    { label: 'Todos os status', value: '' },
+    { label: 'Apenas Ativos', value: 'active' },
+    { label: 'Apenas Inativos', value: 'inactive' }
+  ];
+  
+  planOptions = [
+    { label: 'Todos os planos', value: '' },
+    { label: 'Free', value: 'FREE' },
+    { label: 'Basic', value: 'BASIC' },
+    { label: 'Premium', value: 'PREMIUM' },
+    { label: 'Enterprise', value: 'ENTERPRISE' }
+  ];
   
   // Formulário de criação
   showCreateForm = false;
@@ -374,7 +420,8 @@ export class TenantListComponent implements OnInit {
     private tenantService: TenantService,
     private fb: FormBuilder,
     private toastService: ToastService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private router: Router
   ) {
     this.createForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
@@ -433,24 +480,32 @@ export class TenantListComponent implements OnInit {
       
       return matchesSearch && matchesStatus && matchesPlan;
     });
-    
-    this.currentPage = 1;
+  }
+
+  getPlanSeverity(plan: string): 'success' | 'info' | 'warning' | 'danger' | 'secondary' | 'contrast' {
+    switch (plan) {
+      case 'ENTERPRISE':
+      case 'PREMIUM':
+        return 'success';
+      case 'BASIC':
+        return 'warning';
+      case 'FREE':
+        return 'secondary';
+      default:
+        return 'info';
+    }
   }
 
   paginatedTenants(): Tenant[] {
-    const start = (this.currentPage - 1) * this.pageSize;
-    const end = start + this.pageSize;
-    return this.filteredTenants.slice(start, end);
+    return this.filteredTenants;
   }
 
   totalPages(): number {
-    return Math.ceil(this.filteredTenants.length / this.pageSize);
+    return 1;
   }
 
   changePage(page: number): void {
-    if (page >= 1 && page <= this.totalPages()) {
-      this.currentPage = page;
-    }
+    // Não mais necessário, PrimeNG Table gerencia
   }
 
   onSubmitClick(event: Event): void {
