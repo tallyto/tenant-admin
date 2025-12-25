@@ -1,323 +1,774 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
+import { TabViewModule } from 'primeng/tabview';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { TooltipModule } from 'primeng/tooltip';
+import { ConfirmationService } from 'primeng/api';
 import { TenantService } from '../../../core/services/tenant.service';
-import { Tenant } from '../../../models/tenant.model';
-import { Usuario } from '../../../models/usuario.model';
+import { ToastService } from '../../../core/services/toast.service';
+
+interface Usuario {
+  id: number;
+  nome: string;
+  email: string;
+  ativo: boolean;
+  ultimoAcesso?: string;
+  dataCriacao: string;
+}
 
 @Component({
   selector: 'app-tenant-detail',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [
+    CommonModule,
+    FormsModule,
+    CardModule,
+    ButtonModule,
+    TableModule,
+    TagModule,
+    TabViewModule,
+    ConfirmDialogModule,
+    TooltipModule
+  ],
+  providers: [ConfirmationService],
   template: `
-    <div class="tenant-detail">
-      <div class="header">
-        <h1>Detalhes do Tenant</h1>
-        <a routerLink="/tenants" class="btn btn-secondary">← Voltar</a>
-      </div>
-
-      <div class="spinner" *ngIf="loading"></div>
-
-      <div *ngIf="!loading && tenant">
-        <div class="card">
-          <h2>{{ tenant.name }}</h2>
-          <p class="domain">{{ tenant.domain }}</p>
-          
-          <div class="status-badge">
-            <span class="badge" 
-              [ngClass]="{
-                'badge-success': tenant.active,
-                'badge-danger': !tenant.active
-              }">
-              {{ tenant.active ? '✅ Ativo' : '❌ Inativo' }}
-            </span>
-            <span class="badge badge-secondary">
-              {{ tenant.subscriptionPlan }}
-            </span>
-          </div>
-
-          <div class="info-grid">
-            <div class="info-item">
-              <strong>Email:</strong>
-              <span>{{ tenant.email }}</span>
+    <div class="p-4">
+      <p-card>
+        <ng-template pTemplate="header">
+          <div class="flex justify-content-between align-items-center p-3">
+            <div>
+              <h2 class="m-0">{{ tenant?.nome }}</h2>
+              <small class="text-color-secondary">{{ tenant?.dominio }}</small>
             </div>
-
-            <div class="info-item" *ngIf="tenant.phoneNumber">
-              <strong>Telefone:</strong>
-              <span>{{ tenant.phoneNumber }}</span>
-            </div>
-
-            <div class="info-item" *ngIf="tenant.address">
-              <strong>Endereço:</strong>
-              <span>{{ tenant.address }}</span>
-            </div>
-
-            <div class="info-item" *ngIf="tenant.displayName">
-              <strong>Nome de Exibição:</strong>
-              <span>{{ tenant.displayName }}</span>
-            </div>
-
-            <div class="info-item" *ngIf="tenant.maxUsers">
-              <strong>Máx. Usuários:</strong>
-              <span>{{ tenant.maxUsers }}</span>
-            </div>
-
-            <div class="info-item" *ngIf="tenant.timezone">
-              <strong>Timezone:</strong>
-              <span>{{ tenant.timezone }}</span>
-            </div>
-
-            <div class="info-item" *ngIf="tenant.locale">
-              <strong>Localização:</strong>
-              <span>{{ tenant.locale }}</span>
-            </div>
-
-            <div class="info-item" *ngIf="tenant.currencyCode">
-              <strong>Moeda:</strong>
-              <span>{{ tenant.currencyCode }}</span>
-            </div>
-
-            <div class="info-item" *ngIf="tenant.createdAt">
-              <strong>Criado em:</strong>
-              <span>{{ tenant.createdAt | date:'dd/MM/yyyy HH:mm' }}</span>
-            </div>
-
-            <div class="info-item" *ngIf="tenant.updatedAt">
-              <strong>Atualizado em:</strong>
-              <span>{{ tenant.updatedAt | date:'dd/MM/yyyy HH:mm' }}</span>
+            <div class="flex gap-2">
+              <p-button 
+                icon="pi pi-arrow-left" 
+                [outlined]="true"
+                (onClick)="voltar()"
+                label="Voltar">
+              </p-button>
             </div>
           </div>
+        </ng-template>
 
-          <div class="actions">
-            <button 
-              class="btn"
-              [ngClass]="tenant.active ? 'btn-warning' : 'btn-success'"
-              (click)="toggleActive()">
-              {{ tenant.active ? '🔒 Desativar Tenant' : '✅ Ativar Tenant' }}
-            </button>
-            <button class="btn btn-danger" (click)="deleteTenant()">
-              🗑️ Excluir Tenant
-            </button>
-          </div>
-        </div>
+        <p-tabView>
+          <!-- Tab: Informações -->
+          <p-tabPanel header="Informações" leftIcon="pi pi-info-circle">
+            <div class="grid">
+              <div class="col-12 md:col-6">
+                <h3>Detalhes do Tenant</h3>
+                <div class="field grid">
+                  <label class="col-12 mb-2 md:col-4 md:mb-0 font-bold">ID:</label>
+                  <div class="col-12 md:col-8">{{ tenant?.id }}</div>
+                </div>
+                <div class="field grid">
+                  <label class="col-12 mb-2 md:col-4 md:mb-0 font-bold">Nome:</label>
+                  <div class="col-12 md:col-8">{{ tenant?.nome }}</div>
+                </div>
+                <div class="field grid">
+                  <label class="col-12 mb-2 md:col-4 md:mb-0 font-bold">Domínio:</label>
+                  <div class="col-12 md:col-8">{{ tenant?.dominio }}</div>
+                </div>
+                <div class="field grid">
+                  <label class="col-12 mb-2 md:col-4 md:mb-0 font-bold">Email:</label>
+                  <div class="col-12 md:col-8">{{ tenant?.email }}</div>
+                </div>
+                <div class="field grid">
+                  <label class="col-12 mb-2 md:col-4 md:mb-0 font-bold">Status:</label>
+                  <div class="col-12 md:col-8">
+                    <p-tag 
+                      [value]="tenant?.ativo ? 'Ativo' : 'Inativo'" 
+                      [severity]="tenant?.ativo ? 'success' : 'danger'">
+                    </p-tag>
+                  </div>
+                </div>
+                <div class="field grid">
+                  <label class="col-12 mb-2 md:col-4 md:mb-0 font-bold">Data de Criação:</label>
+                  <div class="col-12 md:col-8">{{ tenant?.dataCriacao | date: 'dd/MM/yyyy HH:mm' }}</div>
+                </div>
+              </div>
 
-        <div class="card" style="margin-top: 2rem;">
-          <h3>👥 Usuários do Tenant</h3>
-          
-          <div class="spinner" *ngIf="loadingUsuarios"></div>
-          
-          <div *ngIf="!loadingUsuarios && usuarios.length > 0" class="table-responsive">
-            <table>
-              <thead>
+              <div class="col-12 md:col-6">
+                <h3>Ações Administrativas</h3>
+                <div class="flex flex-column gap-2">
+                  <p-button 
+                    [label]="tenant?.ativo ? 'Desativar Tenant' : 'Ativar Tenant'"
+                    [icon]="tenant?.ativo ? 'pi pi-ban' : 'pi pi-check-circle'"
+                    [severity]="tenant?.ativo ? 'warning' : 'success'"
+                    (onClick)="toggleTenantStatus()"
+                    styleClass="w-full">
+                  </p-button>
+                  
+                  <p-button 
+                    label="Enviar Email de Boas-vindas"
+                    icon="pi pi-envelope"
+                    severity="info"
+                    [outlined]="true"
+                    (onClick)="enviarEmailBoasVindas()"
+                    styleClass="w-full">
+                  </p-button>
+                  
+                  <p-button 
+                    label="Excluir Tenant"
+                    icon="pi pi-trash"
+                    severity="danger"
+                    (onClick)="confirmarExclusao()"
+                    styleClass="w-full">
+                  </p-button>
+                </div>
+              </div>
+            </div>
+          </p-tabPanel>
+
+          <!-- Tab: Usuários -->
+          <p-tabPanel header="Usuários" leftIcon="pi pi-users">
+            <div class="mb-3 flex justify-content-between align-items-center">
+              <h3 class="m-0">Gerenciamento de Usuários</h3>
+              <p-button 
+                icon="pi pi-refresh" 
+                [outlined]="true"
+                (onClick)="carregarUsuarios()"
+                pTooltip="Atualizar lista">
+              </p-button>
+            </div>
+
+            <p-table 
+              [value]="usuarios" 
+              [paginator]="true" 
+              [rows]="10"
+              [loading]="loading"
+              [rowsPerPageOptions]="[10, 25, 50]"
+              styleClass="p-datatable-sm">
+              <ng-template pTemplate="header">
                 <tr>
+                  <th>ID</th>
                   <th>Nome</th>
                   <th>Email</th>
-                  <th>Criado em</th>
+                  <th>Status</th>
                   <th>Último Acesso</th>
+                  <th>Criado Em</th>
+                  <th style="width: 200px">Ações</th>
                 </tr>
-              </thead>
-              <tbody>
-                <tr *ngFor="let usuario of usuarios">
+              </ng-template>
+              <ng-template pTemplate="body" let-usuario>
+                <tr>
+                  <td>{{ usuario.id }}</td>
                   <td>{{ usuario.nome }}</td>
                   <td>{{ usuario.email }}</td>
-                  <td>{{ usuario.criadoEm | date:'dd/MM/yyyy HH:mm' }}</td>
-                  <td>{{ usuario.ultimoAcesso ? (usuario.ultimoAcesso | date:'dd/MM/yyyy HH:mm') : 'Nunca acessou' }}</td>
+                  <td>
+                    <p-tag 
+                      [value]="usuario.ativo ? 'Ativo' : 'Inativo'" 
+                      [severity]="usuario.ativo ? 'success' : 'danger'">
+                    </p-tag>
+                  </td>
+                  <td>{{ usuario.ultimoAcesso ? (usuario.ultimoAcesso | date: 'dd/MM/yyyy HH:mm') : 'Nunca' }}</td>
+                  <td>{{ usuario.dataCriacao | date: 'dd/MM/yyyy' }}</td>
+                  <td>
+                    <div class="flex gap-1">
+                      <p-button 
+                        [icon]="usuario.ativo ? 'pi pi-ban' : 'pi pi-check'"
+                        [severity]="usuario.ativo ? 'warning' : 'success'"
+                        [outlined]="true"
+                        size="small"
+                        [pTooltip]="usuario.ativo ? 'Desativar' : 'Ativar'"
+                        (onClick)="toggleUsuarioStatus(usuario)">
+                      </p-button>
+                      <p-button 
+                        icon="pi pi-key"
+                        severity="info"
+                        [outlined]="true"
+                        size="small"
+                        pTooltip="Resetar Senha"
+                        (onClick)="enviarResetSenha(usuario)">
+                      </p-button>
+                    </div>
+                  </td>
                 </tr>
-              </tbody>
-            </table>
-          </div>
-          
-          <p class="text-secondary" *ngIf="!loadingUsuarios && usuarios.length === 0">
-            Nenhum usuário cadastrado neste tenant ainda.
-          </p>
-        </div>
+              </ng-template>
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="7" class="text-center">Nenhum usuário encontrado</td>
+                </tr>
+              </ng-template>
+            </p-table>
+          </p-tabPanel>
 
-        <div class="card" style="margin-top: 2rem;">
-          <h3>Atividades Recentes</h3>
-          <p class="text-secondary">Em desenvolvimento - aqui serão exibidas as atividades dos usuários deste tenant.</p>
-        </div>
-      </div>
+          <!-- Tab: Ações Rápidas -->
+          <p-tabPanel header="Ações" leftIcon="pi pi-bolt">
+            <div class="grid">
+              <div class="col-12 md:col-6 lg:col-4">
+                <p-card>
+                  <ng-template pTemplate="header">
+                    <div class="p-3">
+                      <i class="pi pi-envelope text-4xl text-primary"></i>
+                    </div>
+                  </ng-template>
+                  <h4>Enviar Email de Boas-vindas</h4>
+                  <p class="text-color-secondary">Envia email de boas-vindas para o tenant</p>
+                  <ng-template pTemplate="footer">
+                    <p-button 
+                      label="Enviar"
+                      icon="pi pi-send"
+                      (onClick)="enviarEmailBoasVindas()"
+                      styleClass="w-full">
+                    </p-button>
+                  </ng-template>
+                </p-card>
+              </div>
 
-      <div class="card" *ngIf="!loading && !tenant">
-        <p>Tenant não encontrado.</p>
-      </div>
+              <div class="col-12 md:col-6 lg:col-4">
+                <p-card>
+                  <ng-template pTemplate="header">
+                    <div class="p-3">
+                      <i class="pi pi-user-plus text-4xl text-primary"></i>
+                    </div>
+                  </ng-template>
+                  <h4>Lembrete Criar Usuário</h4>
+                  <p class="text-color-secondary">Envia lembrete para criar o primeiro usuário</p>
+                  <ng-template pTemplate="footer">
+                    <p-button 
+                      label="Enviar"
+                      icon="pi pi-send"
+                      (onClick)="enviarLembreteUsuario()"
+                      styleClass="w-full">
+                    </p-button>
+                  </ng-template>
+                </p-card>
+              </div>
+
+              <div class="col-12 md:col-6 lg:col-4">
+                <p-card>
+                  <ng-template pTemplate="header">
+                    <div class="p-3">
+                      <i class="pi pi-key text-4xl text-primary"></i>
+                    </div>
+                  </ng-template>
+                  <h4>Resetar Todas as Senhas</h4>
+                  <p class="text-color-secondary">Envia email de reset para todos os usuários ativos</p>
+                  <ng-template pTemplate="footer">
+                    <p-button 
+                      label="Resetar"
+                      icon="pi pi-refresh"
+                      severity="warning"
+                      (onClick)="confirmarResetTodasSenhas()"
+                      styleClass="w-full">
+                    </p-button>
+                  </ng-template>
+                </p-card>
+              </div>
+
+              <div class="col-12 md:col-6 lg:col-4">
+                <p-card>
+                  <ng-template pTemplate="header">
+                    <div class="p-3">
+                      <i class="pi pi-download text-4xl text-primary"></i>
+                    </div>
+                  </ng-template>
+                  <h4>Exportar Dados</h4>
+                  <p class="text-color-secondary">Exporta todos os dados do tenant em formato JSON</p>
+                  <ng-template pTemplate="footer">
+                    <p-button 
+                      label="Exportar"
+                      icon="pi pi-download"
+                      severity="info"
+                      [outlined]="true"
+                      (onClick)="exportarDados()"
+                      styleClass="w-full">
+                    </p-button>
+                  </ng-template>
+                </p-card>
+              </div>
+
+              <div class="col-12 md:col-6 lg:col-4">
+                <p-card>
+                  <ng-template pTemplate="header">
+                    <div class="p-3">
+                      <i class="pi pi-ban text-4xl text-danger"></i>
+                    </div>
+                  </ng-template>
+                  <h4>Desativar Todos Usuários</h4>
+                  <p class="text-color-secondary">Desativa todos os usuários do tenant</p>
+                  <ng-template pTemplate="footer">
+                    <p-button 
+                      label="Desativar"
+                      icon="pi pi-ban"
+                      severity="danger"
+                      (onClick)="confirmarDesativarTodosUsuarios()"
+                      styleClass="w-full">
+                    </p-button>
+                  </ng-template>
+                </p-card>
+              </div>
+
+              <div class="col-12 md:col-6 lg:col-4">
+                <p-card>
+                  <ng-template pTemplate="header">
+                    <div class="p-3">
+                      <i class="pi pi-check-circle text-4xl text-success"></i>
+                    </div>
+                  </ng-template>
+                  <h4>Ativar Todos Usuários</h4>
+                  <p class="text-color-secondary">Ativa todos os usuários do tenant</p>
+                  <ng-template pTemplate="footer">
+                    <p-button 
+                      label="Ativar"
+                      icon="pi pi-check-circle"
+                      severity="success"
+                      (onClick)="confirmarAtivarTodosUsuarios()"
+                      styleClass="w-full">
+                    </p-button>
+                  </ng-template>
+                </p-card>
+              </div>
+            </div>
+          </p-tabPanel>
+
+          <!-- Tab: Estatísticas -->
+          <p-tabPanel header="Estatísticas" leftIcon="pi pi-chart-bar">
+            <div class="grid">
+              <div class="col-12 md:col-6 lg:col-3">
+                <p-card styleClass="bg-blue-50">
+                  <div class="flex align-items-center justify-content-between">
+                    <div>
+                      <div class="text-500 font-medium mb-2">Total de Usuários</div>
+                      <div class="text-4xl font-bold text-blue-500">{{ usuarios.length }}</div>
+                    </div>
+                    <i class="pi pi-users text-5xl text-blue-300"></i>
+                  </div>
+                </p-card>
+              </div>
+
+              <div class="col-12 md:col-6 lg:col-3">
+                <p-card styleClass="bg-green-50">
+                  <div class="flex align-items-center justify-content-between">
+                    <div>
+                      <div class="text-500 font-medium mb-2">Usuários Ativos</div>
+                      <div class="text-4xl font-bold text-green-500">{{ usuariosAtivos }}</div>
+                    </div>
+                    <i class="pi pi-check-circle text-5xl text-green-300"></i>
+                  </div>
+                </p-card>
+              </div>
+
+              <div class="col-12 md:col-6 lg:col-3">
+                <p-card styleClass="bg-orange-50">
+                  <div class="flex align-items-center justify-content-between">
+                    <div>
+                      <div class="text-500 font-medium mb-2">Usuários Inativos</div>
+                      <div class="text-4xl font-bold text-orange-500">{{ usuariosInativos }}</div>
+                    </div>
+                    <i class="pi pi-ban text-5xl text-orange-300"></i>
+                  </div>
+                </p-card>
+              </div>
+
+              <div class="col-12 md:col-6 lg:col-3">
+                <p-card [styleClass]="tenant?.ativo ? 'bg-teal-50' : 'bg-red-50'">
+                  <div class="flex align-items-center justify-content-between">
+                    <div>
+                      <div class="text-500 font-medium mb-2">Status Tenant</div>
+                      <div [class]="'text-4xl font-bold ' + (tenant?.ativo ? 'text-teal-500' : 'text-red-500')">
+                        {{ tenant?.ativo ? 'Ativo' : 'Inativo' }}
+                      </div>
+                    </div>
+                    <i [class]="'pi text-5xl ' + (tenant?.ativo ? 'pi-check-circle text-teal-300' : 'pi-times-circle text-red-300')"></i>
+                  </div>
+                </p-card>
+              </div>
+
+              <div class="col-12 md:col-6">
+                <p-card>
+                  <h4>Informações Adicionais</h4>
+                  <div class="field grid">
+                    <label class="col-12 mb-2 md:col-6 md:mb-0 font-bold">Plano:</label>
+                    <div class="col-12 md:col-6">{{ tenant?.plano || 'Básico' }}</div>
+                  </div>
+                  <div class="field grid">
+                    <label class="col-12 mb-2 md:col-6 md:mb-0 font-bold">Dias Desde Criação:</label>
+                    <div class="col-12 md:col-6">{{ calcularDiasDesdeCriacao() }}</div>
+                  </div>
+                  <div class="field grid">
+                    <label class="col-12 mb-2 md:col-6 md:mb-0 font-bold">Último Acesso (Admin):</label>
+                    <div class="col-12 md:col-6">{{ ultimoAcessoAdmin | date: 'dd/MM/yyyy HH:mm' }}</div>
+                  </div>
+                </p-card>
+              </div>
+
+              <div class="col-12 md:col-6">
+                <p-card>
+                  <h4>Atividade Recente</h4>
+                  <ul class="list-none p-0 m-0">
+                    <li class="flex align-items-center py-2 border-bottom-1 surface-border">
+                      <i class="pi pi-user-plus mr-2 text-primary"></i>
+                      <span class="text-color-secondary">Último usuário criado: </span>
+                      <span class="ml-auto">{{ dataUltimoUsuarioCriado | date: 'dd/MM/yyyy' }}</span>
+                    </li>
+                    <li class="flex align-items-center py-2 border-bottom-1 surface-border">
+                      <i class="pi pi-envelope mr-2 text-primary"></i>
+                      <span class="text-color-secondary">Último email enviado: </span>
+                      <span class="ml-auto">{{ dataUltimoEmail | date: 'dd/MM/yyyy' }}</span>
+                    </li>
+                    <li class="flex align-items-center py-2">
+                      <i class="pi pi-sign-in mr-2 text-primary"></i>
+                      <span class="text-color-secondary">Último login: </span>
+                      <span class="ml-auto">{{ dataUltimoLogin | date: 'dd/MM/yyyy HH:mm' }}</span>
+                    </li>
+                  </ul>
+                </p-card>
+              </div>
+            </div>
+          </p-tabPanel>
+        </p-tabView>
+      </p-card>
+
+      <p-confirmDialog></p-confirmDialog>
     </div>
   `,
   styles: [`
-    .tenant-detail {
-      max-width: 1000px;
-      margin: 0 auto;
-    }
+    :host ::ng-deep {
+      .p-card {
+        box-shadow: 0 2px 1px -1px rgba(0,0,0,.2), 0 1px 1px 0 rgba(0,0,0,.14), 0 1px 3px 0 rgba(0,0,0,.12);
+      }
 
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 2rem;
-    }
+      .p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+      }
 
-    h1 {
-      margin: 0;
-    }
-
-    h2 {
-      margin: 0 0 0.5rem 0;
-      color: var(--primary-color);
-    }
-
-    .domain {
-      color: var(--text-secondary);
-      margin-bottom: 1rem;
-      font-size: 1.1rem;
-    }
-
-    .status-badge {
-      display: flex;
-      gap: 0.5rem;
-      margin-bottom: 2rem;
-    }
-
-    .info-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 1.5rem;
-      margin: 2rem 0;
-    }
-
-    .info-item {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-    }
-
-    .info-item strong {
-      color: var(--text-secondary);
-      font-size: 0.875rem;
-      text-transform: uppercase;
-    }
-
-    .actions {
-      display: flex;
-      gap: 1rem;
-      margin-top: 2rem;
-      padding-top: 2rem;
-      border-top: 1px solid var(--border-color);
-    }
-
-    .text-secondary {
-      color: var(--text-secondary);
-    }
-
-    .badge-secondary {
-      background-color: #e2e8f0;
-      color: #475569;
-    }
-
-    .btn-success {
-      background-color: var(--success-color);
-      color: white;
-    }
-
-    .btn-success:hover {
-      background-color: #059669;
-    }
-
-    .btn-warning {
-      background-color: var(--warning-color);
-      color: white;
-    }
-
-    .btn-warning:hover {
-      background-color: #d97706;
+      .p-datatable .p-datatable-tbody > tr > td {
+        padding: 0.5rem;
+      }
     }
   `]
 })
 export class TenantDetailComponent implements OnInit {
-  tenant: Tenant | null = null;
+  tenant: any = null;
   usuarios: Usuario[] = [];
   loading = false;
-  loadingUsuarios = false;
-  tenantId: string = '';
+  
+  // Estatísticas
+  usuariosAtivos = 0;
+  usuariosInativos = 0;
+  ultimoAcessoAdmin: Date = new Date();
+  dataUltimoUsuarioCriado: Date = new Date();
+  dataUltimoEmail: Date = new Date();
+  dataUltimoLogin: Date = new Date();
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private tenantService: TenantService
+    private tenantService: TenantService,
+    private toastService: ToastService,
+    private confirmationService: ConfirmationService
   ) {}
 
   ngOnInit(): void {
-    this.tenantId = this.route.snapshot.paramMap.get('id') || '';
-    if (this.tenantId) {
-      this.loadTenant();
+    const id = this.route.snapshot.paramMap.get('id');
+    if (id) {
+      this.carregarTenant(+id);
+      this.carregarUsuarios();
     }
   }
 
-  loadTenant(): void {
+  carregarTenant(id: number): void {
     this.loading = true;
-    this.tenantService.getById(this.tenantId).subscribe({
-      next: (data) => {
-        this.tenant = data;
+    this.tenantService.getById(id).subscribe({
+      next: (tenant) => {
+        this.tenant = tenant;
         this.loading = false;
-        this.loadUsuarios();
       },
       error: (error) => {
-        console.error('Error loading tenant:', error);
+        console.error('Erro ao carregar tenant:', error);
+        this.toastService.showError('Erro ao carregar tenant');
         this.loading = false;
-        alert('Erro ao carregar tenant');
       }
     });
   }
 
-  loadUsuarios(): void {
-    this.loadingUsuarios = true;
-    this.tenantService.getUsuarios(this.tenantId).subscribe({
-      next: (data) => {
-        this.usuarios = data;
-        this.loadingUsuarios = false;
+  carregarUsuarios(): void {
+    const id = this.route.snapshot.paramMap.get('id');
+    if (!id) return;
+
+    this.loading = true;
+    this.tenantService.getUsuarios(+id).subscribe({
+      next: (usuarios) => {
+        this.usuarios = usuarios;
+        this.calcularEstatisticas();
+        this.loading = false;
       },
       error: (error) => {
-        console.error('Error loading usuarios:', error);
-        this.loadingUsuarios = false;
+        console.error('Erro ao carregar usuários:', error);
+        this.toastService.showError('Erro ao carregar usuários');
+        this.loading = false;
       }
     });
   }
 
-  toggleActive(): void {
+  calcularEstatisticas(): void {
+    this.usuariosAtivos = this.usuarios.filter(u => u.ativo).length;
+    this.usuariosInativos = this.usuarios.filter(u => !u.ativo).length;
+    
+    // Encontrar o usuário criado mais recentemente
+    if (this.usuarios.length > 0) {
+      const usuariosOrdenados = [...this.usuarios].sort((a, b) => 
+        new Date(b.dataCriacao).getTime() - new Date(a.dataCriacao).getTime()
+      );
+      this.dataUltimoUsuarioCriado = new Date(usuariosOrdenados[0].dataCriacao);
+    }
+  }
+
+  toggleTenantStatus(): void {
     if (!this.tenant) return;
 
-    const action = this.tenant.active ? 'desativar' : 'ativar';
-    if (!confirm(`Deseja realmente ${action} o tenant "${this.tenant.name}"?`)) {
-      return;
-    }
+    const acao = this.tenant.ativo ? 'desativar' : 'ativar';
+    this.confirmationService.confirm({
+      message: `Tem certeza que deseja ${acao} este tenant?`,
+      header: 'Confirmação',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.tenantService.toggleStatus(this.tenant.id).subscribe({
+          next: () => {
+            this.tenant.ativo = !this.tenant.ativo;
+            this.toastService.showSuccess(`Tenant ${acao === 'desativar' ? 'desativado' : 'ativado'} com sucesso`);
+          },
+          error: (error) => {
+            console.error('Erro ao alterar status:', error);
+            this.toastService.showError('Erro ao alterar status do tenant');
+          }
+        });
+      }
+    });
+  }
 
-    this.tenantService.toggleActive(this.tenant).subscribe({
+  toggleUsuarioStatus(usuario: Usuario): void {
+    const acao = usuario.ativo ? 'desativar' : 'ativar';
+    this.confirmationService.confirm({
+      message: `Tem certeza que deseja ${acao} o usuário ${usuario.nome}?`,
+      header: 'Confirmação',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.tenantService.toggleUsuarioStatus(this.tenant.id, usuario.id).subscribe({
+          next: () => {
+            usuario.ativo = !usuario.ativo;
+            this.calcularEstatisticas();
+            this.toastService.showSuccess(`Usuário ${acao === 'desativar' ? 'desativado' : 'ativado'} com sucesso`);
+          },
+          error: (error) => {
+            console.error('Erro ao alterar status do usuário:', error);
+            this.toastService.showError('Erro ao alterar status do usuário');
+          }
+        });
+      }
+    });
+  }
+
+  enviarResetSenha(usuario: Usuario): void {
+    this.confirmationService.confirm({
+      message: `Enviar email de redefinição de senha para ${usuario.nome}?`,
+      header: 'Confirmação',
+      icon: 'pi pi-question-circle',
+      accept: () => {
+        this.tenantService.enviarResetSenha(this.tenant.id, usuario.id).subscribe({
+          next: () => {
+            this.toastService.showSuccess('Email de redefinição enviado com sucesso');
+            this.dataUltimoEmail = new Date();
+          },
+          error: (error) => {
+            console.error('Erro ao enviar email:', error);
+            this.toastService.showError('Erro ao enviar email de redefinição');
+          }
+        });
+      }
+    });
+  }
+
+  enviarEmailBoasVindas(): void {
+    if (!this.tenant) return;
+
+    this.confirmationService.confirm({
+      message: 'Enviar email de boas-vindas para o tenant?',
+      header: 'Confirmação',
+      icon: 'pi pi-question-circle',
+      accept: () => {
+        this.tenantService.enviarEmailBoasVindas(this.tenant.id).subscribe({
+          next: () => {
+            this.toastService.showSuccess('Email de boas-vindas enviado com sucesso');
+            this.dataUltimoEmail = new Date();
+          },
+          error: (error) => {
+            console.error('Erro ao enviar email:', error);
+            this.toastService.showError('Erro ao enviar email de boas-vindas');
+          }
+        });
+      }
+    });
+  }
+
+  enviarLembreteUsuario(): void {
+    if (!this.tenant) return;
+
+    this.confirmationService.confirm({
+      message: 'Enviar lembrete para criar o primeiro usuário?',
+      header: 'Confirmação',
+      icon: 'pi pi-question-circle',
+      accept: () => {
+        this.tenantService.enviarLembreteCriarUsuario(this.tenant.id).subscribe({
+          next: () => {
+            this.toastService.showSuccess('Lembrete enviado com sucesso');
+            this.dataUltimoEmail = new Date();
+          },
+          error: (error) => {
+            console.error('Erro ao enviar lembrete:', error);
+            this.toastService.showError('Erro ao enviar lembrete');
+          }
+        });
+      }
+    });
+  }
+
+  confirmarResetTodasSenhas(): void {
+    this.confirmationService.confirm({
+      message: 'Tem certeza que deseja enviar email de reset de senha para TODOS os usuários ativos?',
+      header: 'Atenção',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.resetarTodasSenhas();
+      }
+    });
+  }
+
+  resetarTodasSenhas(): void {
+    if (!this.tenant) return;
+
+    this.tenantService.resetarTodasSenhas(this.tenant.id).subscribe({
       next: () => {
-        this.loadTenant();
-        alert(`Tenant ${action === 'ativar' ? 'ativado' : 'desativado'} com sucesso!`);
+        this.toastService.showSuccess('Emails de reset enviados para todos os usuários ativos');
+        this.dataUltimoEmail = new Date();
       },
       error: (error) => {
-        console.error('Error toggling tenant:', error);
-        alert(`Erro ao ${action} tenant`);
+        console.error('Erro ao resetar senhas:', error);
+        this.toastService.showError('Erro ao enviar emails de reset');
       }
     });
   }
 
-  deleteTenant(): void {
+  confirmarDesativarTodosUsuarios(): void {
+    this.confirmationService.confirm({
+      message: 'Tem certeza que deseja DESATIVAR todos os usuários deste tenant?',
+      header: 'Atenção',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.desativarTodosUsuarios();
+      }
+    });
+  }
+
+  desativarTodosUsuarios(): void {
     if (!this.tenant) return;
 
-    if (!confirm(`Deseja realmente EXCLUIR o tenant "${this.tenant.name}"? Esta ação não pode ser desfeita.`)) {
-      return;
-    }
+    this.tenantService.desativarTodosUsuarios(this.tenant.id).subscribe({
+      next: () => {
+        this.usuarios.forEach(u => u.ativo = false);
+        this.calcularEstatisticas();
+        this.toastService.showSuccess('Todos os usuários foram desativados');
+      },
+      error: (error) => {
+        console.error('Erro ao desativar usuários:', error);
+        this.toastService.showError('Erro ao desativar usuários');
+      }
+    });
+  }
+
+  confirmarAtivarTodosUsuarios(): void {
+    this.confirmationService.confirm({
+      message: 'Tem certeza que deseja ATIVAR todos os usuários deste tenant?',
+      header: 'Confirmação',
+      icon: 'pi pi-question-circle',
+      accept: () => {
+        this.ativarTodosUsuarios();
+      }
+    });
+  }
+
+  ativarTodosUsuarios(): void {
+    if (!this.tenant) return;
+
+    this.tenantService.ativarTodosUsuarios(this.tenant.id).subscribe({
+      next: () => {
+        this.usuarios.forEach(u => u.ativo = true);
+        this.calcularEstatisticas();
+        this.toastService.showSuccess('Todos os usuários foram ativados');
+      },
+      error: (error) => {
+        console.error('Erro ao ativar usuários:', error);
+        this.toastService.showError('Erro ao ativar usuários');
+      }
+    });
+  }
+
+  exportarDados(): void {
+    if (!this.tenant) return;
+
+    this.tenantService.exportarDados(this.tenant.id).subscribe({
+      next: (dados) => {
+        const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `tenant-${this.tenant.id}-dados.json`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+        this.toastService.showSuccess('Dados exportados com sucesso');
+      },
+      error: (error) => {
+        console.error('Erro ao exportar dados:', error);
+        this.toastService.showError('Erro ao exportar dados');
+      }
+    });
+  }
+
+  confirmarExclusao(): void {
+    this.confirmationService.confirm({
+      message: 'Tem certeza que deseja EXCLUIR este tenant? Esta ação não pode ser desfeita!',
+      header: 'ATENÇÃO - Exclusão Permanente',
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
+        this.excluirTenant();
+      }
+    });
+  }
+
+  excluirTenant(): void {
+    if (!this.tenant) return;
 
     this.tenantService.delete(this.tenant.id).subscribe({
       next: () => {
-        alert('Tenant excluído com sucesso!');
+        this.toastService.showSuccess('Tenant excluído com sucesso');
         this.router.navigate(['/tenants']);
       },
       error: (error) => {
-        console.error('Error deleting tenant:', error);
-        alert('Erro ao excluir tenant');
+        console.error('Erro ao excluir tenant:', error);
+        this.toastService.showError('Erro ao excluir tenant');
       }
     });
+  }
+
+  calcularDiasDesdeCriacao(): number {
+    if (!this.tenant?.dataCriacao) return 0;
+    const agora = new Date();
+    const criacao = new Date(this.tenant.dataCriacao);
+    const diff = agora.getTime() - criacao.getTime();
+    return Math.floor(diff / (1000 * 60 * 60 * 24));
+  }
+
+  voltar(): void {
+    this.router.navigate(['/tenants']);
   }
 }

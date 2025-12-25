@@ -56,4 +56,36 @@ export class TenantService {
   enviarLembreteCriarUsuario(tenantId: string): Observable<{ message: string }> {
     return this.http.post<{ message: string }>(`${this.apiUrl}/${tenantId}/enviar-lembrete-usuario`, {});
   }
+
+  toggleStatus(tenantId: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${tenantId}/toggle-status`, {});
+  }
+
+  toggleUsuarioStatus(tenantId: number, usuarioId: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${tenantId}/usuarios/${usuarioId}/toggle-status`, {});
+  }
+
+  enviarResetSenha(tenantId: number, usuarioId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${tenantId}/usuarios/${usuarioId}/reset-senha`, {});
+  }
+
+  enviarEmailBoasVindas(tenantId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${tenantId}/email-boas-vindas`, {});
+  }
+
+  resetarTodasSenhas(tenantId: number): Observable<any> {
+    return this.http.post(`${this.apiUrl}/${tenantId}/usuarios/reset-todas-senhas`, {});
+  }
+
+  desativarTodosUsuarios(tenantId: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${tenantId}/usuarios/desativar-todos`, {});
+  }
+
+  ativarTodosUsuarios(tenantId: number): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${tenantId}/usuarios/ativar-todos`, {});
+  }
+
+  exportarDados(tenantId: number): Observable<any> {
+    return this.http.get(`${this.apiUrl}/${tenantId}/exportar`, {});
+  }
 }
