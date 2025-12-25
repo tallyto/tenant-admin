@@ -211,7 +211,7 @@ import { TooltipModule } from 'primeng/tooltip';
                 Plano <p-sortIcon field="subscriptionPlan"></p-sortIcon>
               </th>
               <th>Status</th>
-              <th style="width: 250px;">Ações</th>
+              <th style="width: 300px;">Ações</th>
             </tr>
           </ng-template>
           <ng-template pTemplate="body" let-tenant>
@@ -258,6 +258,15 @@ import { TooltipModule } from 'primeng/tooltip';
                     [text]="true"
                     size="small"
                     pTooltip="Ver detalhes">
+                  </p-button>
+                  <p-button 
+                    icon="pi pi-envelope" 
+                    (onClick)="enviarLembreteUsuario(tenant)"
+                    severity="warning"
+                    [text]="true"
+                    size="small"
+                    [disabled]="!tenant.active"
+                    pTooltip="Enviar lembrete para criar usuário">
                   </p-button>
                   <p-button 
                     [icon]="tenant.active ? 'pi pi-lock' : 'pi pi-check'"
@@ -657,11 +666,28 @@ export class TenantListComponent implements OnInit {
     this.tenantService.delete(tenant.id).subscribe({
       next: () => {
         this.loadTenants();
-        alert('Tenant excluído com sucesso!');
+        this.toastService.success('Tenant excluído com sucesso!');
       },
       error: (error) => {
         console.error('Error deleting tenant:', error);
-        alert('Erro ao excluir tenant');
+        this.toastService.error('Erro ao excluir tenant');
+      }
+    });
+  }
+  
+  enviarLembreteUsuario(tenant: Tenant): void {
+    if (!confirm(`Enviar email para "${tenant.name}" lembrando de criar o primeiro usuário?`)) {
+      return;
+    }
+
+    this.tenantService.enviarLembreteCriarUsuario(tenant.id).subscribe({
+      next: (response) => {
+        this.toastService.success(response.message || 'Email enviado com sucesso!');
+      },
+      error: (error) => {
+        console.error('Error sending reminder:', error);
+        const errorMessage = error.error?.message || error.error?.error || 'Erro ao enviar email de lembrete';
+        this.toastService.error(errorMessage);
       }
     });
   }

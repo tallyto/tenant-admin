@@ -52,4 +52,8 @@ export class TenantService {
   getUsuarios(tenantId: string): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/${tenantId}/usuarios`);
   }
+  
+  enviarLembreteCriarUsuario(tenantId: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/${tenantId}/enviar-lembrete-usuario`, {});
+  }
 }
