@@ -41,13 +41,13 @@ import { TooltipModule } from 'primeng/tooltip';
           <p-button 
             label="Novo Tenant" 
             icon="pi pi-plus" 
-            (onClick)="showCreateForm = true"
+            (click)="showCreateForm = true"
             severity="success">
           </p-button>
           <p-button 
             label="Atualizar" 
             icon="pi pi-refresh" 
-            (onClick)="loadTenants()"
+            (click)="loadTenants()"
             [outlined]="true">
           </p-button>
         </div>
@@ -134,14 +134,14 @@ import { TooltipModule } from 'primeng/tooltip';
           <p-button 
             label="Cancelar" 
             icon="pi pi-times" 
-            (onClick)="cancelCreate()" 
+            (click)="cancelCreate()" 
             [text]="true"
             [disabled]="creating">
           </p-button>
           <p-button 
             [label]="creating ? 'Cadastrando...' : 'Cadastrar Tenant'" 
             icon="pi pi-check" 
-            (onClick)="createTenant()"
+            (click)="createTenant()"
             [disabled]="creating"
             [loading]="creating">
           </p-button>
@@ -228,7 +228,7 @@ import { TooltipModule } from 'primeng/tooltip';
                   <span>{{ isEmailVisible(tenant.id) ? tenant.email : maskEmail(tenant.email) }}</span>
                   <p-button 
                     [icon]="isEmailVisible(tenant.id) ? 'pi pi-eye-slash' : 'pi pi-eye'"
-                    (onClick)="toggleEmailVisibility(tenant.id)"
+                    (click)="toggleEmailVisibility(tenant.id)"
                     [rounded]="true"
                     [text]="true"
                     severity="secondary"
@@ -261,7 +261,7 @@ import { TooltipModule } from 'primeng/tooltip';
                   </p-button>
                   <p-button 
                     icon="pi pi-envelope" 
-                    (onClick)="enviarLembreteUsuario(tenant)"
+                    (click)="enviarLembreteUsuario(tenant)"
                     severity="warn"
                     [text]="true"
                     size="small"
@@ -270,7 +270,7 @@ import { TooltipModule } from 'primeng/tooltip';
                   </p-button>
                   <p-button 
                     [icon]="tenant.active ? 'pi pi-lock' : 'pi pi-check'"
-                    (onClick)="toggleActive(tenant)"
+                    (click)="toggleActive(tenant)"
                     severity="secondary"
                     [text]="true"
                     size="small"
@@ -278,7 +278,7 @@ import { TooltipModule } from 'primeng/tooltip';
                   </p-button>
                   <p-button 
                     icon="pi pi-trash" 
-                    (onClick)="deleteTenant(tenant)"
+                    (click)="deleteTenant(tenant)"
                     severity="danger"
                     [text]="true"
                     size="small"

@@ -50,7 +50,7 @@ interface Usuario {
               <p-button 
                 icon="pi pi-arrow-left" 
                 [outlined]="true"
-                (onClick)="voltar()"
+                (click)="voltar()"
                 label="Voltar">
               </p-button>
             </div>
@@ -101,7 +101,7 @@ interface Usuario {
                     [label]="tenant?.ativo ? 'Desativar Tenant' : 'Ativar Tenant'"
                     [icon]="tenant?.ativo ? 'pi pi-ban' : 'pi pi-check-circle'"
                     [severity]="tenant?.ativo ? 'warn' : 'success'"
-                    (onClick)="toggleTenantStatus()"
+                    (click)="toggleTenantStatus()"
                     styleClass="w-full">
                   </p-button>
                   
@@ -110,7 +110,7 @@ interface Usuario {
                     icon="pi pi-envelope"
                     severity="info"
                     [outlined]="true"
-                    (onClick)="enviarEmailBoasVindas()"
+                    (click)="enviarEmailBoasVindas()"
                     styleClass="w-full">
                   </p-button>
                   
@@ -118,7 +118,7 @@ interface Usuario {
                     label="Excluir Tenant"
                     icon="pi pi-trash"
                     severity="danger"
-                    (onClick)="confirmarExclusao()"
+                    (click)="confirmarExclusao()"
                     styleClass="w-full">
                   </p-button>
                 </div>
@@ -133,7 +133,7 @@ interface Usuario {
               <p-button 
                 icon="pi pi-refresh" 
                 [outlined]="true"
-                (onClick)="carregarUsuarios()"
+                (click)="carregarUsuarios()"
                 pTooltip="Atualizar lista">
               </p-button>
             </div>
@@ -177,7 +177,7 @@ interface Usuario {
                         [outlined]="true"
                         size="small"
                         [pTooltip]="usuario.ativo ? 'Desativar' : 'Ativar'"
-                        (onClick)="toggleUsuarioStatus(usuario)">
+                        (click)="toggleUsuarioStatus(usuario)">
                       </p-button>
                       <p-button 
                         icon="pi pi-key"
@@ -185,7 +185,7 @@ interface Usuario {
                         [outlined]="true"
                         size="small"
                         pTooltip="Resetar Senha"
-                        (onClick)="enviarResetSenha(usuario)">
+                        (click)="enviarResetSenha(usuario)">
                       </p-button>
                     </div>
                   </td>
@@ -215,7 +215,7 @@ interface Usuario {
                     <p-button 
                       label="Enviar"
                       icon="pi pi-send"
-                      (onClick)="enviarEmailBoasVindas()"
+                      (click)="enviarEmailBoasVindas()"
                       styleClass="w-full">
                     </p-button>
                   </ng-template>
@@ -235,7 +235,7 @@ interface Usuario {
                     <p-button 
                       label="Enviar"
                       icon="pi pi-send"
-                      (onClick)="enviarLembreteUsuario()"
+                      (click)="enviarLembreteUsuario()"
                       styleClass="w-full">
                     </p-button>
                   </ng-template>
@@ -256,7 +256,7 @@ interface Usuario {
                       label="Resetar"
                       icon="pi pi-refresh"
                     severity="warn"
-                      (onClick)="confirmarResetTodasSenhas()"
+                      (click)="confirmarResetTodasSenhas()"
                       styleClass="w-full">
                     </p-button>
                   </ng-template>
@@ -278,7 +278,7 @@ interface Usuario {
                       icon="pi pi-download"
                       severity="info"
                       [outlined]="true"
-                      (onClick)="exportarDados()"
+                      (click)="exportarDados()"
                       styleClass="w-full">
                     </p-button>
                   </ng-template>
@@ -299,7 +299,7 @@ interface Usuario {
                       label="Desativar"
                       icon="pi pi-ban"
                       severity="danger"
-                      (onClick)="confirmarDesativarTodosUsuarios()"
+                      (click)="confirmarDesativarTodosUsuarios()"
                       styleClass="w-full">
                     </p-button>
                   </ng-template>
@@ -320,7 +320,7 @@ interface Usuario {
                       label="Ativar"
                       icon="pi pi-check-circle"
                       severity="success"
-                      (onClick)="confirmarAtivarTodosUsuarios()"
+                      (click)="confirmarAtivarTodosUsuarios()"
                       styleClass="w-full">
                     </p-button>
                   </ng-template>
@@ -443,6 +443,27 @@ interface Usuario {
 
       .p-datatable .p-datatable-tbody > tr > td {
         padding: 0.5rem;
+      }
+
+      .p-datatable .p-button.p-button-sm {
+        padding: 0.375rem 0.625rem;
+        font-size: 0.875rem;
+      }
+
+      .p-datatable .p-button.p-button-icon-only {
+        width: 2rem;
+        height: 2rem;
+        padding: 0.375rem;
+      }
+
+      .flex.gap-1 {
+        gap: 0.25rem;
+      }
+
+      .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
       }
     }
   `]
