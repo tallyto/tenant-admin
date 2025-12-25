@@ -57,6 +57,10 @@ export class TenantService {
     return this.http.post<{ message: string }>(`${this.apiUrl}/${tenantId}/enviar-lembrete-usuario`, {});
   }
 
+  reenviarTokenCriarUsuario(tenantId: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`${this.apiUrl}/${tenantId}/reenviar-token-usuario`, {});
+  }
+
   toggleStatus(tenantId: number): Observable<any> {
     return this.http.put(`${this.apiUrl}/${tenantId}/toggle-status`, {});
   }

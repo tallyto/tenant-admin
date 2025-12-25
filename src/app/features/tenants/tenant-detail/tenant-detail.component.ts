@@ -246,6 +246,27 @@ interface Usuario {
                 <p-card>
                   <ng-template pTemplate="header">
                     <div class="p-3">
+                      <i class="pi pi-refresh text-4xl text-orange-500"></i>
+                    </div>
+                  </ng-template>
+                  <h4>Reenviar Token</h4>
+                  <p class="text-color-secondary">Gera novo token caso o anterior tenha expirado</p>
+                  <ng-template pTemplate="footer">
+                    <p-button 
+                      label="Reenviar"
+                      icon="pi pi-refresh"
+                      severity="warn"
+                      (click)="reenviarToken()"
+                      styleClass="w-full">
+                    </p-button>
+                  </ng-template>
+                </p-card>
+              </div>
+
+              <div class="col-12 md:col-6 lg:col-4">
+                <p-card>
+                  <ng-template pTemplate="header">
+                    <div class="p-3">
                       <i class="pi pi-key text-4xl text-primary"></i>
                     </div>
                   </ng-template>
@@ -647,6 +668,29 @@ export class TenantDetailComponent implements OnInit {
           error: (error) => {
             console.error('Erro ao enviar lembrete:', error);
             this.toastService.error('Erro ao enviar lembrete');
+          }
+        });
+      }
+    });
+  }
+
+  reenviarToken(): void {
+    if (!this.tenant) return;
+
+    this.confirmationService.confirm({
+      message: 'Gerar novo token e reenviar email para criação de usuário?',
+      header: 'Confirmação',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.tenantService.reenviarTokenCriarUsuario(this.tenant.id).subscribe({
+          next: (response) => {
+            this.toastService.success(response.message || 'Token reenviado com sucesso');
+            this.dataUltimoEmail = new Date();
+          },
+          error: (error) => {
+            console.error('Erro ao reenviar token:', error);
+            const errorMessage = error.error?.message || 'Erro ao reenviar token';
+            this.toastService.error(errorMessage);
           }
         });
       }
